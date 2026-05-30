@@ -33,7 +33,7 @@
                 </div>
 
                 <div class="input-group" id="signupFields">
-                    <input type="text" id="name" class="input-field" placeholder="Full Name">
+                    <input type="text" id="name" class="input-field" placeholder="Full Name" required>
                     <input type="text" id="phone" class="input-field" placeholder="Phone Number">
                     <input type="text" id="address" class="input-field" placeholder="Delivery Address">
                 </div>
@@ -84,11 +84,13 @@
             
             if (mode === 'signup') {
                 document.getElementById('signupFields').style.display = 'flex';
+                document.getElementById('name').setAttribute('required', 'true');
                 submitBtn.textContent = otpSent ? 'Verify OTP & Register' : 'Send OTP to Email';
                 if (otpSent) otpGroup.style.display = 'block';
                 else otpGroup.style.display = 'none';
             } else {
                 document.getElementById('signupFields').style.display = 'none';
+                document.getElementById('name').removeAttribute('required');
                 submitBtn.textContent = 'Sign in';
                 otpGroup.style.display = 'none';
             }
