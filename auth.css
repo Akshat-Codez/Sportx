@@ -1,0 +1,231 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #121212;
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+}
+
+.glass-card {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 24rem; /* max-w-sm */
+    background: linear-gradient(to right, rgba(255,255,255,0.06), #121212);
+    backdrop-filter: blur(8px);
+    border-radius: 1.5rem; /* rounded-3xl */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.logo-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.logo-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+    color: #F5A623;
+}
+
+.title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    justify-content: center;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    font-weight: 600;
+    padding-bottom: 5px;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-btn.active {
+    color: #F5A623;
+    border-bottom: 2px solid #F5A623;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.input-field {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    font-size: 0.875rem;
+    outline: none;
+    transition: box-shadow 0.2s;
+}
+
+.input-field::placeholder {
+    color: #d1d5db; /* gray-300 */
+}
+
+.input-field:focus {
+    box-shadow: 0 0 0 2px #9ca3af; /* ring-gray-400 */
+}
+
+.divider {
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 0.5rem 0;
+}
+
+.action-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.primary-btn {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-weight: 500;
+    padding: 0.75rem 1.25rem;
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s;
+    font-size: 0.875rem;
+}
+
+.primary-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.google-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: linear-gradient(to bottom, #232526, #2d2e30);
+    border-radius: 9999px;
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    transition: filter 0.2s;
+    font-size: 0.875rem;
+}
+
+.google-btn img {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.google-btn:hover {
+    filter: brightness(1.1);
+}
+
+.social-proof {
+    position: relative;
+    z-index: 10;
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.social-proof p {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.social-proof .highlight {
+    font-weight: 500;
+    color: white;
+}
+
+.avatars {
+    display: flex;
+}
+
+.avatars img {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    border: 2px solid #181824;
+    object-fit: cover;
+    margin-left: -0.5rem;
+}
+
+.avatars img:first-child {
+    margin-left: 0;
+}
+
+.error-msg {
+    color: #f87171;
+    font-size: 0.875rem;
+    text-align: left;
+}
+
+.success-msg {
+    color: #4ade80;
+    font-size: 0.875rem;
+    text-align: left;
+}
