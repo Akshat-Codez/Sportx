@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SportX — Contact & Terms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --gold: #F5A623; --gold-dark: #C47D0E; --dark: #0a0a0a; --dark2: #111;
+  --dark3: #1a1a1a; --text2: #aaa;
+}
+body { background:var(--dark); color:#fff; font-family:'Inter',sans-serif; overflow-x:hidden; }
+
+.top-banner { background:#111; border-bottom:1px solid #1e1e1e; padding:6px 0;
+  text-align:center; font-size:11px; letter-spacing:2.5px; color:var(--text2); font-weight:500; }
+nav { background:var(--dark2); padding:0 40px; display:flex; align-items:center;
+  justify-content:space-between; height:62px; border-bottom:1px solid #1e1e1e; position:relative; z-index:100; }
+.logo { font-family:'Barlow Condensed',sans-serif; font-size:34px; font-weight:900; letter-spacing:-1px; line-height:1; text-decoration:none; color:#fff; }
+.logo span { color:var(--gold); }
+.logo-sub { font-size:9px; color:var(--text2); letter-spacing:2px; font-weight:400; margin-top:-2px; }
+
+.container { max-width:900px; margin: 60px auto; padding: 0 40px; }
+.page-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 56px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+  letter-spacing: 1px;
+}
+.page-title span { color: var(--gold); }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+@media(max-width: 768px) {
+  .grid { grid-template-columns: 1fr; }
+  .page-title { font-size: 42px; }
+}
+
+.box {
+  background: var(--dark2);
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 32px;
+}
+.box h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  color: var(--gold);
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+}
+.box p { color: var(--text2); line-height: 1.6; margin-bottom: 16px; font-size: 15px; }
+.contact-method { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.contact-method i { font-style: normal; font-size: 20px; }
+.contact-method div { color: #fff; font-weight: 500; }
+
+.terms { margin-top: 40px; }
+.terms h3 { margin-bottom: 12px; font-size: 18px; color: #fff; }
+.terms ul { padding-left: 20px; color: var(--text2); line-height: 1.6; margin-bottom: 24px; font-size: 15px; }
+.terms li { margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<div class="top-banner">SPORTX — ELITE SPORTS EQUIPMENT</div>
+
+<nav>
+  <div>
+    <a href="/index.html" class="logo">SPORT<span>X</span></a>
+    <div class="logo-sub">PRO GRADE · RENT · OWN · ELITE SERVICE</div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-title">CONTACT <span>US</span></div>
+  
+  <div class="grid">
+    <div class="box">
+      <h2>GET IN TOUCH</h2>
+      <p>Have questions about gear rental, enterprise bulk purchases, or just want to say hi? We'd love to hear from you.</p>
+      
+      <div class="contact-method">
+        <i>📧</i> <div>contact@sportx.com</div>
+      </div>
+      <div class="contact-method">
+        <i>📞</i> <div>+91 98765 43210</div>
+      </div>
+      <div class="contact-method">
+        <i>🏢</i> <div>123 Elite Sports Arena, Cyber Hub, India</div>
+      </div>
+    </div>
+    
+    <div class="box terms">
+      <h2>TERMS & CONDITIONS</h2>
+      <h3>Rental Agreements</h3>
+      <ul>
+        <li>A valid ID is required for all high-value rentals.</li>
+        <li>Equipment must be returned by 10:00 AM on the agreed return date.</li>
+        <li>Late returns incur a 50% daily surcharge.</li>
+        <li>Damages beyond normal wear-and-tear will be charged to the user's account.</li>
+      </ul>
+      
+      <h3>Purchase Policies</h3>
+      <ul>
+        <li>7-day no-questions-asked return policy on unused gear.</li>
+        <li>1-year standard warranty on all pro-tier equipment.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
