@@ -10,7 +10,24 @@ app.use(express.json());
 // Serve static files so that index.html and admin.html can be accessed directly
 app.use(express.static(__dirname));
 
-const db = new sqlite3.Database(path.join(__dirname, 'sportx.db'), (err) => {
+const fs = require('fs');
+
+// Vercel Serverless Functions have a read-only filesystem except for the /tmp directory.
+// We must copy the database to /tmp to allow it to be read and written to.
+const isVercel = process.env.VERCEL || process.env.NOW_REGION;
+const dbPath = isVercel ? '/tmp/sportx.db' : path.join(__dirname, 'sportx.db');
+
+if (isVercel) {
+  try {
+    if (!fs.existsSync(dbPath) && fs.existsSync(path.join(__dirname, 'sportx.db'))) {
+      fs.copyFileSync(path.join(__dirname, 'sportx.db'), dbPath);
+    }
+  } catch (e) {
+    console.error('Failed to copy DB to /tmp', e);
+  }
+}
+
+const db = new sqlite3.Database(dbPath, (err) => {
   if (err) console.error('Database opening error: ', err);
 });
 
