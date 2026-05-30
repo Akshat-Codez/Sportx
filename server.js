@@ -79,6 +79,18 @@ app.delete('/api/cart/:id', (req, res) => {
   res.json({ success: true, message: 'Removed' });
 });
 
+app.patch('/api/cart/:id/qty', (req, res) => {
+  const { delta } = req.body;
+  const item = cart.find(c => c.id === parseInt(req.params.id));
+  if (!item) return res.status(404).json({ success: false, message: 'Item not found' });
+  item.qty += delta;
+  if (item.qty <= 0) {
+    cart = cart.filter(c => c.id !== item.id);
+    return res.json({ success: true, remove: true });
+  }
+  res.json({ success: true, qty: item.qty });
+});
+
 app.post('/api/orders', (req, res) => {
   const { address = '', paymentMethod = 'COD', phone = '' } = req.body || {};
   if (cart.length === 0) return res.status(400).json({ success: false, message: 'Cart empty' });
@@ -117,7 +129,8 @@ app.get('/api/orders', (req, res) => {
 
 app.put('/api/products/:id/stock', (req, res) => {
   const { stock } = req.body;
-  if (stock === undefined) return res.status(400).json({ success: false, message: 'Stock value required' });
+  if (stock === undefined || stock === null) return res.status(400).json({ success: false, message: 'Stock value required' });
+  if (typeof stock !== 'number' || stock < 0 || !Number.isInteger(stock)) return res.status(400).json({ success: false, message: 'Stock must be a non-negative integer' });
   
   const product = products.find(p => p.id === parseInt(req.params.id));
   if (!product) return res.status(404).json({ success: false, message: 'Not found' });
