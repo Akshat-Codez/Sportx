@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 // ─────────────────────────────────────────────────────────────
-// SECURITY UTILITIES (pure Node.js — no native bindings needed)
+// SECURITY UTILITIES
 // ─────────────────────────────────────────────────────────────
 
 function hashPassword(password) {
@@ -36,9 +36,9 @@ function base64url(input) {
 }
 
 function signJWT(payload, expiresInSeconds = 3600 * 24 * 7) {
-  const header  = base64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const body    = base64url(JSON.stringify({ ...payload, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + expiresInSeconds }));
-  const sig     = crypto.createHmac('sha256', JWT_SECRET).update(`${header}.${body}`).digest('base64')
+  const header = base64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const body   = base64url(JSON.stringify({ ...payload, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + expiresInSeconds }));
+  const sig    = crypto.createHmac('sha256', JWT_SECRET).update(`${header}.${body}`).digest('base64')
     .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
   return `${header}.${body}.${sig}`;
 }
@@ -55,12 +55,10 @@ function verifyJWT(token) {
   } catch { return null; }
 }
 
-// ── OTP generator ──
 function generateOTP() {
   return crypto.randomInt(100000, 999999).toString();
 }
 
-// ── Auth middleware ──
 function requireAuth(req, res, next) {
   const auth = req.headers['authorization'] || '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
@@ -77,7 +75,6 @@ function requireAuth(req, res, next) {
 // ─────────────────────────────────────────────────────────────
 
 let users = [];
-// FIX #1: Declare otpStore — was missing entirely, causing ReferenceError crashes
 const otpStore = {};
 
 let products = [
@@ -97,81 +94,78 @@ let cartIdCounter = 1;
 
 // ─────────────────────────────────────────────────────────────
 // EMAIL  (Gmail SMTP via Nodemailer — credentials from .env)
+// FIX: No eager createTestAccount() call — Vercel blocks outbound
+//      TCP at module load. Ethereal is created lazily on first use.
 // ─────────────────────────────────────────────────────────────
 
 const nodemailer = require('nodemailer');
 
-// FIX #2: Cast SMTP_PORT to Number — env vars are strings, nodemailer needs a number
 function buildTransporter() {
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT) || 587,
-      secure: Number(process.env.SMTP_PORT) === 465, // true only for port 465
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS   // Gmail App Password
-      }
+      secure: Number(process.env.SMTP_PORT) === 465,
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
     });
   }
   return null;
 }
 
-// Ethereal fallback (shown in console — great for local dev without Gmail)
+// Lazy Ethereal — only created on first send attempt (avoids cold-start TCP)
 let etherealTransporter = null;
-nodemailer.createTestAccount().then(account => {
-  etherealTransporter = nodemailer.createTransport({
-    host: account.smtp.host,
-    port: account.smtp.port,
-    secure: account.smtp.secure,
-    auth: { user: account.user, pass: account.pass }
-  });
-  console.log('\n✅ Ethereal fallback email ready (used only if Gmail not configured)');
-}).catch(() => {});
+let etherealInitialised = false;
+
+async function getEtherealTransporter() {
+  if (etherealTransporter) return etherealTransporter;
+  if (etherealInitialised) return null; // already tried and failed
+  etherealInitialised = true;
+  try {
+    const account = await nodemailer.createTestAccount();
+    etherealTransporter = nodemailer.createTransport({
+      host: account.smtp.host,
+      port: account.smtp.port,
+      secure: account.smtp.secure,
+      auth: { user: account.user, pass: account.pass }
+    });
+    return etherealTransporter;
+  } catch { return null; }
+}
 
 async function sendMail(to, subject, html) {
   const gmailTransporter = buildTransporter();
 
   if (gmailTransporter) {
     try {
-      await gmailTransporter.sendMail({
-        from: `"SportX" <${process.env.SMTP_USER}>`,
-        to, subject, html
-      });
+      await gmailTransporter.sendMail({ from: `"SportX" <${process.env.SMTP_USER}>`, to, subject, html });
       console.log(`✅ Email sent via Gmail to ${to}`);
       return;
     } catch (err) {
       console.error('❌ Gmail send failed:', err.message);
-      // Fall through to Ethereal
     }
   }
 
-  if (etherealTransporter) {
+  const et = await getEtherealTransporter();
+  if (et) {
     try {
-      const info = await etherealTransporter.sendMail({
-        from: '"SportX" <no-reply@sportx.com>',
-        to, subject, html
-      });
-      console.log(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-      console.log(`📧 OTP Email (Ethereal preview) for ${to}`);
-      console.log(`👉 VIEW EMAIL: ${nodemailer.getTestMessageUrl(info)}`);
-      console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
+      const info = await et.sendMail({ from: '"SportX" <no-reply@sportx.com>', to, subject, html });
+      console.log(`\n📧 OTP preview (Ethereal): ${nodemailer.getTestMessageUrl(info)}\n`);
       return;
     } catch (err) {
       console.error('❌ Ethereal send failed:', err.message);
     }
   }
 
-  // Last-resort console fallback
+  // Console fallback
   console.log(`\n📧 [CONSOLE FALLBACK] To: ${to} | Subject: ${subject}`);
   console.log(`HTML: ${html.replace(/<[^>]*>/g, '')}\n`);
 }
 
 function otpEmailHtml(otp, purpose) {
   const purposeText = {
-    signup:     'verify your new SportX account',
-    'login-otp':'log in to your SportX account',
-    reset:      'reset your SportX password'
+    signup:      'verify your new SportX account',
+    'login-otp': 'log in to your SportX account',
+    reset:       'reset your SportX password'
   }[purpose] || 'continue';
   return `
     <div style="background:#0d0d0d;color:#e0e0e0;font-family:Inter,sans-serif;padding:40px;border-radius:12px;max-width:420px;margin:0 auto;">
@@ -191,16 +185,14 @@ function otpEmailHtml(otp, purpose) {
 // VALIDATION HELPERS
 // ─────────────────────────────────────────────────────────────
 
-function isValidEmail(e) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e).toLowerCase());
-}
+function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e).toLowerCase()); }
 
 function passwordStrength(p) {
-  if (!p || p.length < 8)              return 'Password must be at least 8 characters';
-  if (!/[A-Z]/.test(p))                return 'Password must contain an uppercase letter';
-  if (!/[a-z]/.test(p))                return 'Password must contain a lowercase letter';
-  if (!/\d/.test(p))                   return 'Password must contain a number';
-  if (!/[^A-Za-z0-9]/.test(p))        return 'Password must contain a special character';
+  if (!p || p.length < 8)         return 'Password must be at least 8 characters';
+  if (!/[A-Z]/.test(p))            return 'Password must contain an uppercase letter';
+  if (!/[a-z]/.test(p))            return 'Password must contain a lowercase letter';
+  if (!/\d/.test(p))               return 'Password must contain a number';
+  if (!/[^A-Za-z0-9]/.test(p))    return 'Password must contain a special character';
   return null;
 }
 
@@ -208,184 +200,109 @@ function passwordStrength(p) {
 // AUTH ROUTES
 // ─────────────────────────────────────────────────────────────
 
-// POST /api/auth/register — step 1: validate + send OTP
-// FIX #3: Store OTP in otpStore (not just pendingToken) so verify-otp always works
 app.post('/api/auth/register', (req, res) => {
   const { email, password, name } = req.body || {};
   if (!email || !password || !name)
     return res.status(400).json({ success: false, message: 'name, email and password are required' });
   if (!isValidEmail(email))
     return res.status(400).json({ success: false, message: 'Invalid email address' });
-
   const pwErr = passwordStrength(password);
   if (pwErr) return res.status(400).json({ success: false, message: pwErr });
-
   if (users.find(u => u.email.toLowerCase() === email.toLowerCase()))
     return res.status(409).json({ success: false, message: 'Email already registered' });
 
   const otp = generateOTP();
-  const pendingUser = {
-    email: email.toLowerCase(),
-    passwordHash: hashPassword(password),
-    name,
-    phone: req.body.phone || '',
-    address: req.body.address || ''
-  };
-
-  // Store in otpStore so verify-otp can find it regardless of pendingToken
-  otpStore[email.toLowerCase()] = {
-    otp,
-    expiresAt: Date.now() + 10 * 60 * 1000,
-    purpose: 'signup',
-    attempts: 0,
-    pendingUser
-  };
-
-  // Also issue a pendingToken (stateless backup — useful for Vercel serverless)
+  const pendingUser = { email: email.toLowerCase(), passwordHash: hashPassword(password), name, phone: req.body.phone || '', address: req.body.address || '' };
+  otpStore[email.toLowerCase()] = { otp, expiresAt: Date.now() + 10 * 60 * 1000, purpose: 'signup', attempts: 0, pendingUser };
   const pendingToken = signJWT({ otp, purpose: 'signup', pendingUser });
-
   sendMail(email, 'Your SportX OTP Code', otpEmailHtml(otp, 'signup'));
-  res.json({
-    success: true,
-    message: 'OTP sent to your email. Please verify to complete registration.',
-    pendingToken
-  });
+  res.json({ success: true, message: 'OTP sent to your email. Please verify to complete registration.', pendingToken });
 });
 
-// POST /api/auth/verify-otp
 app.post('/api/auth/verify-otp', (req, res) => {
   const { email, otp, pendingToken } = req.body || {};
-  if (!email || !otp)
-    return res.status(400).json({ success: false, message: 'email and otp are required' });
+  if (!email || !otp) return res.status(400).json({ success: false, message: 'email and otp are required' });
 
-  // FIX #4: Prefer otpStore (always set now); fall back to pendingToken for Vercel
   let record = otpStore[email.toLowerCase()];
-
   if (!record && pendingToken) {
-    // Vercel serverless fallback: reconstruct from JWT
     const decoded = verifyJWT(pendingToken);
-    if (!decoded)
-      return res.status(400).json({ success: false, message: 'Session expired. Please register again.' });
+    if (!decoded) return res.status(400).json({ success: false, message: 'Session expired. Please register again.' });
     record = { ...decoded, attempts: 0, expiresAt: decoded.exp * 1000 };
   }
-
-  if (!record)
-    return res.status(400).json({ success: false, message: 'No OTP found. Please register again.' });
-
+  if (!record) return res.status(400).json({ success: false, message: 'No OTP found. Please register again.' });
   if (Date.now() > record.expiresAt) {
     delete otpStore[email.toLowerCase()];
     return res.status(400).json({ success: false, message: 'OTP has expired. Please register again.' });
   }
-
   record.attempts = (record.attempts || 0) + 1;
   if (record.attempts > 5) {
     delete otpStore[email.toLowerCase()];
     return res.status(429).json({ success: false, message: 'Too many failed attempts. Please start over.' });
   }
+  if (record.otp !== String(otp).trim())
+    return res.status(400).json({ success: false, message: `Incorrect OTP. ${5 - record.attempts} attempt(s) remaining.` });
 
-  if (record.otp !== String(otp).trim()) {
-    return res.status(400).json({
-      success: false,
-      message: `Incorrect OTP. ${5 - record.attempts} attempt(s) remaining.`
-    });
-  }
-
-  // OTP correct — finalise
   delete otpStore[email.toLowerCase()];
-
-  let token, userId, userName;
 
   if (record.purpose === 'signup') {
     const { pendingUser } = record;
-    userId = `usr_${Date.now()}`;
+    const userId = `usr_${Date.now()}`;
     users.push({ id: userId, ...pendingUser, emailVerified: true, createdAt: new Date().toISOString() });
-    userName = pendingUser.name;
-    token = signJWT({ userId, email: pendingUser.email });
-    return res.json({
-      success: true, message: 'Email verified!',
-      token, userId, name: userName,
-      phone: pendingUser.phone, address: pendingUser.address,
-      email: pendingUser.email
-    });
+    const token = signJWT({ userId, email: pendingUser.email });
+    return res.json({ success: true, message: 'Email verified!', token, userId, name: pendingUser.name, phone: pendingUser.phone, address: pendingUser.address, email: pendingUser.email });
   }
-
   if (record.purpose === 'login-otp') {
     const user = users.find(u => u.email === email.toLowerCase());
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-    userId = user.id; userName = user.name;
     user.emailVerified = true;
-    token = signJWT({ userId, email: user.email });
-    return res.json({ success: true, message: 'Logged in!', token, userId, name: userName, email: user.email });
+    const token = signJWT({ userId: user.id, email: user.email });
+    return res.json({ success: true, message: 'Logged in!', token, userId: user.id, name: user.name, email: user.email });
   }
-
   if (record.purpose === 'reset') {
     const resetToken = signJWT({ email: email.toLowerCase(), purpose: 'reset' }, 900);
     return res.json({ success: true, message: 'OTP verified', resetToken });
   }
-
   res.status(400).json({ success: false, message: 'Unknown OTP purpose' });
 });
 
-// POST /api/auth/login — password login
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body || {};
-  if (!email || !password)
-    return res.status(400).json({ success: false, message: 'email and password are required' });
-
+  if (!email || !password) return res.status(400).json({ success: false, message: 'email and password are required' });
   const user = users.find(u => u.email === email.toLowerCase());
-
-  // FIX #5: Timing-safe dummy now uses a properly-formatted fake hash
-  const dummySalt = '0'.repeat(64);
-  const dummyHash = '0'.repeat(128);
-  const dummyStored = `${dummySalt}:${dummyHash}`;
-  const valid = user ? verifyPassword(password, user.passwordHash) : (() => { verifyPassword('dummy_timing_safe_pass', dummyStored); return false; })();
-
-  if (!user || !valid)
-    return res.status(401).json({ success: false, message: 'Invalid email or password' });
-  if (!user.emailVerified)
-    return res.status(403).json({ success: false, message: 'Email not verified. Please check your inbox.' });
-
+  const dummyStored = `${'0'.repeat(64)}:${'0'.repeat(128)}`;
+  const valid = user ? verifyPassword(password, user.passwordHash) : (() => { verifyPassword('dummy', dummyStored); return false; })();
+  if (!user || !valid) return res.status(401).json({ success: false, message: 'Invalid email or password' });
+  if (!user.emailVerified) return res.status(403).json({ success: false, message: 'Email not verified. Please check your inbox.' });
   const token = signJWT({ userId: user.id, email: user.email });
   res.json({ success: true, token, userId: user.id, name: user.name, email: user.email, phone: user.phone, address: user.address });
 });
 
-// POST /api/auth/request-otp — passwordless login / resend OTP
 app.post('/api/auth/request-otp', (req, res) => {
   const { email, purpose = 'login-otp' } = req.body || {};
   if (!email) return res.status(400).json({ success: false, message: 'email required' });
-
   if (purpose === 'login-otp') {
     const user = users.find(u => u.email === email.toLowerCase());
     if (!user) return res.status(404).json({ success: false, message: 'No account found with this email' });
   }
-
   const otp = generateOTP();
   otpStore[email.toLowerCase()] = { otp, expiresAt: Date.now() + 10 * 60 * 1000, purpose, attempts: 0 };
   sendMail(email, 'Your SportX OTP Code', otpEmailHtml(otp, purpose));
   res.json({ success: true, message: 'OTP sent to your email' });
 });
 
-// POST /api/auth/reset-password
 app.post('/api/auth/reset-password', (req, res) => {
   const { resetToken, newPassword } = req.body || {};
-  if (!resetToken || !newPassword)
-    return res.status(400).json({ success: false, message: 'resetToken and newPassword required' });
-
+  if (!resetToken || !newPassword) return res.status(400).json({ success: false, message: 'resetToken and newPassword required' });
   const payload = verifyJWT(resetToken);
-  if (!payload || payload.purpose !== 'reset')
-    return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
-
+  if (!payload || payload.purpose !== 'reset') return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
   const pwErr = passwordStrength(newPassword);
   if (pwErr) return res.status(400).json({ success: false, message: pwErr });
-
   const user = users.find(u => u.email === payload.email);
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-
   user.passwordHash = hashPassword(newPassword);
   res.json({ success: true, message: 'Password reset successfully' });
 });
 
-// GET /api/auth/me
 app.get('/api/auth/me', requireAuth, (req, res) => {
   const user = users.find(u => u.id === req.userId);
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
@@ -394,7 +311,7 @@ app.get('/api/auth/me', requireAuth, (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// EXISTING ROUTES
+// PRODUCT / CART / ORDER ROUTES
 // ─────────────────────────────────────────────────────────────
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
@@ -461,10 +378,8 @@ app.post('/api/orders', (req, res) => {
       if (c.type === 'rent') hasRental = true;
     }
   });
-
   const securityDeposit = hasRental ? 499 : 0;
   total += securityDeposit;
-
   const orderId = `SX-${Date.now()}`;
   orders.unshift({ id: orderId, total, securityDeposit, createdAt: new Date().toISOString(), status: 'confirmed', address, paymentMethod, phone, items: orderItems });
   cart = [];
