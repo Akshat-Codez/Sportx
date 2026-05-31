@@ -27,7 +27,6 @@ function verifyPassword(password, stored) {
   return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(verifyHash, 'hex'));
 }
 
-// ── JWT (pure JS, HS256, Vercel-safe) ──
 const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex');
 
 function base64url(input) {
@@ -93,72 +92,78 @@ let orders = [];
 let cartIdCounter = 1;
 
 // ─────────────────────────────────────────────────────────────
-// EMAIL  (Gmail SMTP via Nodemailer — credentials from .env)
-// FIX: No eager createTestAccount() call — Vercel blocks outbound
-//      TCP at module load. Ethereal is created lazily on first use.
+// EMAIL — three-tier delivery:
+//   1. Resend (RESEND_API_KEY) — recommended for Vercel
+//   2. Gmail SMTP (SMTP_HOST + SMTP_USER + SMTP_PASS)
+//   3. Console fallback — prints OTP in Vercel Function logs
+//
+// HOW TO SET UP RESEND (free, 3000 emails/month):
+//   a) Go to https://resend.com → sign up → API Keys → Create Key
+//   b) In Vercel dashboard → your project → Settings → Environment Variables
+//      Add:  RESEND_API_KEY = re_xxxxxxxxxxxx
+//            RESEND_FROM    = onboarding@resend.dev   ← works without domain verification
 // ─────────────────────────────────────────────────────────────
 
-const nodemailer = require('nodemailer');
+async function sendViaResend(to, subject, html) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return false;
 
-function buildTransporter() {
-  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-    return nodemailer.createTransport({
+  const from = process.env.RESEND_FROM || 'SportX <onboarding@resend.dev>';
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ from, to, subject, html })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      console.log(`✅ Email sent via Resend to ${to} (id: ${data.id})`);
+      return true;
+    }
+    console.error('❌ Resend error:', JSON.stringify(data));
+    return false;
+  } catch (err) {
+    console.error('❌ Resend fetch failed:', err.message);
+    return false;
+  }
+}
+
+async function sendViaGmail(to, subject, html) {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) return false;
+  try {
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT) || 587,
       secure: Number(process.env.SMTP_PORT) === 465,
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
     });
+    await transporter.sendMail({ from: `"SportX" <${process.env.SMTP_USER}>`, to, subject, html });
+    console.log(`✅ Email sent via Gmail SMTP to ${to}`);
+    return true;
+  } catch (err) {
+    console.error('❌ Gmail SMTP failed:', err.message);
+    return false;
   }
-  return null;
 }
 
-// Lazy Ethereal — only created on first send attempt (avoids cold-start TCP)
-let etherealTransporter = null;
-let etherealInitialised = false;
+async function sendMail(to, subject, html, otp) {
+  // Try Resend first (best for Vercel)
+  if (await sendViaResend(to, subject, html)) return;
 
-async function getEtherealTransporter() {
-  if (etherealTransporter) return etherealTransporter;
-  if (etherealInitialised) return null; // already tried and failed
-  etherealInitialised = true;
-  try {
-    const account = await nodemailer.createTestAccount();
-    etherealTransporter = nodemailer.createTransport({
-      host: account.smtp.host,
-      port: account.smtp.port,
-      secure: account.smtp.secure,
-      auth: { user: account.user, pass: account.pass }
-    });
-    return etherealTransporter;
-  } catch { return null; }
-}
+  // Try Gmail SMTP
+  if (await sendViaGmail(to, subject, html)) return;
 
-async function sendMail(to, subject, html) {
-  const gmailTransporter = buildTransporter();
-
-  if (gmailTransporter) {
-    try {
-      await gmailTransporter.sendMail({ from: `"SportX" <${process.env.SMTP_USER}>`, to, subject, html });
-      console.log(`✅ Email sent via Gmail to ${to}`);
-      return;
-    } catch (err) {
-      console.error('❌ Gmail send failed:', err.message);
-    }
-  }
-
-  const et = await getEtherealTransporter();
-  if (et) {
-    try {
-      const info = await et.sendMail({ from: '"SportX" <no-reply@sportx.com>', to, subject, html });
-      console.log(`\n📧 OTP preview (Ethereal): ${nodemailer.getTestMessageUrl(info)}\n`);
-      return;
-    } catch (err) {
-      console.error('❌ Ethereal send failed:', err.message);
-    }
-  }
-
-  // Console fallback
-  console.log(`\n📧 [CONSOLE FALLBACK] To: ${to} | Subject: ${subject}`);
-  console.log(`HTML: ${html.replace(/<[^>]*>/g, '')}\n`);
+  // Console fallback — OTP visible in Vercel Function logs
+  console.log('\n════════════════════════════════════════');
+  console.log(`📧 EMAIL FALLBACK — no provider configured`);
+  console.log(`   To:      ${to}`);
+  console.log(`   Subject: ${subject}`);
+  if (otp) console.log(`   OTP:     ${otp}  ← use this code`);
+  console.log('════════════════════════════════════════\n');
 }
 
 function otpEmailHtml(otp, purpose) {
@@ -188,11 +193,11 @@ function otpEmailHtml(otp, purpose) {
 function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e).toLowerCase()); }
 
 function passwordStrength(p) {
-  if (!p || p.length < 8)         return 'Password must be at least 8 characters';
-  if (!/[A-Z]/.test(p))            return 'Password must contain an uppercase letter';
-  if (!/[a-z]/.test(p))            return 'Password must contain a lowercase letter';
-  if (!/\d/.test(p))               return 'Password must contain a number';
-  if (!/[^A-Za-z0-9]/.test(p))    return 'Password must contain a special character';
+  if (!p || p.length < 8)       return 'Password must be at least 8 characters';
+  if (!/[A-Z]/.test(p))          return 'Password must contain an uppercase letter';
+  if (!/[a-z]/.test(p))          return 'Password must contain a lowercase letter';
+  if (!/\d/.test(p))             return 'Password must contain a number';
+  if (!/[^A-Za-z0-9]/.test(p))  return 'Password must contain a special character';
   return null;
 }
 
@@ -212,11 +217,30 @@ app.post('/api/auth/register', (req, res) => {
     return res.status(409).json({ success: false, message: 'Email already registered' });
 
   const otp = generateOTP();
-  const pendingUser = { email: email.toLowerCase(), passwordHash: hashPassword(password), name, phone: req.body.phone || '', address: req.body.address || '' };
-  otpStore[email.toLowerCase()] = { otp, expiresAt: Date.now() + 10 * 60 * 1000, purpose: 'signup', attempts: 0, pendingUser };
+  const pendingUser = {
+    email: email.toLowerCase(),
+    passwordHash: hashPassword(password),
+    name,
+    phone: req.body.phone || '',
+    address: req.body.address || ''
+  };
+
+  otpStore[email.toLowerCase()] = {
+    otp, expiresAt: Date.now() + 10 * 60 * 1000, purpose: 'signup', attempts: 0, pendingUser
+  };
+
   const pendingToken = signJWT({ otp, purpose: 'signup', pendingUser });
-  sendMail(email, 'Your SportX OTP Code', otpEmailHtml(otp, 'signup'));
-  res.json({ success: true, message: 'OTP sent to your email. Please verify to complete registration.', pendingToken });
+
+  sendMail(email, 'Your SportX OTP Code', otpEmailHtml(otp, 'signup'), otp);
+
+  // In dev/no-email-config mode, return OTP in response so you can still test
+  const isDev = process.env.NODE_ENV !== 'production' || (!process.env.RESEND_API_KEY && !process.env.SMTP_HOST);
+  res.json({
+    success: true,
+    message: 'OTP sent to your email. Please verify to complete registration.',
+    pendingToken,
+    ...(isDev && { devOtp: otp, devNote: 'Email provider not configured — OTP returned here for testing' })
+  });
 });
 
 app.post('/api/auth/verify-otp', (req, res) => {
@@ -224,21 +248,26 @@ app.post('/api/auth/verify-otp', (req, res) => {
   if (!email || !otp) return res.status(400).json({ success: false, message: 'email and otp are required' });
 
   let record = otpStore[email.toLowerCase()];
+
   if (!record && pendingToken) {
     const decoded = verifyJWT(pendingToken);
     if (!decoded) return res.status(400).json({ success: false, message: 'Session expired. Please register again.' });
     record = { ...decoded, attempts: 0, expiresAt: decoded.exp * 1000 };
   }
+
   if (!record) return res.status(400).json({ success: false, message: 'No OTP found. Please register again.' });
+
   if (Date.now() > record.expiresAt) {
     delete otpStore[email.toLowerCase()];
     return res.status(400).json({ success: false, message: 'OTP has expired. Please register again.' });
   }
+
   record.attempts = (record.attempts || 0) + 1;
   if (record.attempts > 5) {
     delete otpStore[email.toLowerCase()];
     return res.status(429).json({ success: false, message: 'Too many failed attempts. Please start over.' });
   }
+
   if (record.otp !== String(otp).trim())
     return res.status(400).json({ success: false, message: `Incorrect OTP. ${5 - record.attempts} attempt(s) remaining.` });
 
@@ -251,6 +280,7 @@ app.post('/api/auth/verify-otp', (req, res) => {
     const token = signJWT({ userId, email: pendingUser.email });
     return res.json({ success: true, message: 'Email verified!', token, userId, name: pendingUser.name, phone: pendingUser.phone, address: pendingUser.address, email: pendingUser.email });
   }
+
   if (record.purpose === 'login-otp') {
     const user = users.find(u => u.email === email.toLowerCase());
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
@@ -258,10 +288,12 @@ app.post('/api/auth/verify-otp', (req, res) => {
     const token = signJWT({ userId: user.id, email: user.email });
     return res.json({ success: true, message: 'Logged in!', token, userId: user.id, name: user.name, email: user.email });
   }
+
   if (record.purpose === 'reset') {
     const resetToken = signJWT({ email: email.toLowerCase(), purpose: 'reset' }, 900);
     return res.json({ success: true, message: 'OTP verified', resetToken });
   }
+
   res.status(400).json({ success: false, message: 'Unknown OTP purpose' });
 });
 
@@ -286,8 +318,13 @@ app.post('/api/auth/request-otp', (req, res) => {
   }
   const otp = generateOTP();
   otpStore[email.toLowerCase()] = { otp, expiresAt: Date.now() + 10 * 60 * 1000, purpose, attempts: 0 };
-  sendMail(email, 'Your SportX OTP Code', otpEmailHtml(otp, purpose));
-  res.json({ success: true, message: 'OTP sent to your email' });
+  sendMail(email, 'Your SportX OTP Code', otpEmailHtml(otp, purpose), otp);
+  const isDev = process.env.NODE_ENV !== 'production' || (!process.env.RESEND_API_KEY && !process.env.SMTP_HOST);
+  res.json({
+    success: true,
+    message: 'OTP sent to your email',
+    ...(isDev && { devOtp: otp, devNote: 'Email provider not configured — OTP returned here for testing' })
+  });
 });
 
 app.post('/api/auth/reset-password', (req, res) => {

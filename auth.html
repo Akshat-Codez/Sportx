@@ -127,11 +127,17 @@
 
                         if (data.success) {
                             otpSent      = true;
-                            // FIX #8: save pendingToken so Vercel serverless can recover OTP
+                            // Save pendingToken so Vercel serverless can recover OTP
                             pendingToken = data.pendingToken || null;
                             document.getElementById('otpGroup').style.display = 'block';
                             submitBtn.textContent = 'Verify OTP & Register';
-                            successMsg.textContent = data.message;
+                            // If email provider not configured, server returns devOtp directly
+                            if (data.devOtp) {
+                                document.getElementById('otp').value = data.devOtp;
+                                successMsg.innerHTML = `${data.message}<br><span style="color:#F5A623;font-weight:700;">⚠️ Dev mode: OTP auto-filled (${data.devOtp}). Set RESEND_API_KEY in Vercel to send real emails.</span>`;
+                            } else {
+                                successMsg.textContent = data.message;
+                            }
                         } else {
                             errorMsg.textContent = data.message;
                         }
