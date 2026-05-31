@@ -53,7 +53,7 @@
 </div>
 
 <div class="inventory">
-  <div class="section-title">FEATURED <span>INVENTORY</span></div>
+  <div class="section-title">ALL <span>INVENTORY</span></div>
   <div class="grid" id="product-grid">
     <!-- Skeleton placeholders -->
     <div class="card skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div><div class="skeleton-line w80"></div></div></div>
@@ -99,35 +99,14 @@
   </div>
 </div>
 
-<!-- Auth / Login Modal -->
+<!-- Auth redirect modal — points to real email-OTP auth page -->
 <div class="modal-overlay" id="auth-modal" role="dialog" aria-modal="true">
-  <div class="checkout-modal" style="position:relative;">
+  <div class="checkout-modal" style="position:relative;text-align:center;">
     <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()">&times;</button>
-    <h3 id="auth-modal-title">LOGIN / SIGNUP</h3>
-    <p id="auth-modal-sub">Enter your details to continue.</p>
-    <div class="form-group">
-      <label>Full Name</label>
-      <input type="text" id="auth-name" class="form-input" placeholder="John Doe" />
-    </div>
-    <div class="form-group">
-      <label>Mobile Number</label>
-      <input type="text" id="auth-phone" class="form-input" placeholder="+91 xxxxx xxxxx" />
-    </div>
-    <button class="btn-primary" onclick="requestOTP()">Send OTP</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="otp-modal" role="dialog" aria-modal="true">
-  <div class="checkout-modal" style="position:relative;">
-    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()">&times;</button>
-    <h3>VERIFY OTP</h3>
-    <p>We've sent a 4-digit code to your phone.</p>
-    <div class="form-group">
-      <label>Enter 4-Digit OTP</label>
-      <input type="text" id="otp-code" class="form-input" placeholder="1234" maxlength="4" style="text-align:center; letter-spacing:8px; font-size:24px" />
-    </div>
-    <p style="text-align:center; font-size:12px; color:#666; margin-top:10px">Resend in <span id="otp-timer">00:30</span></p>
-    <button class="btn-primary" onclick="verifyOTP()">Verify & Continue</button>
+    <div style="font-size:48px;margin-bottom:16px;">🔐</div>
+    <h3 style="color:var(--gold);margin-bottom:8px;">LOGIN REQUIRED</h3>
+    <p style="color:#aaa;font-size:14px;margin-bottom:24px;">Sign in or create an account to continue checkout. An OTP will be sent to your email.</p>
+    <button class="btn-primary" onclick="goToAuth()">Sign In / Register</button>
   </div>
 </div>
 
@@ -256,11 +235,21 @@
 ═══════════════════════════════════════════════════════════ */
 let allProducts = [];
 let pendingRentProduct = null;
-let currentUser = null;   // { name, phone }
+let currentUser = null;   // { name, email, token }
+
+// FIX: auth.html saves email as a plain string + token separately.
+// Normalise into one object so the rest of the page works correctly.
 try {
-  const saved = localStorage.getItem('sportx_user');
-  if (saved) {
-    currentUser = JSON.parse(saved);
+  const savedEmail = localStorage.getItem('sportx_user');
+  const savedToken = localStorage.getItem('sportx_token');
+  if (savedEmail && savedToken) {
+    let emailVal = savedEmail;
+    try { const p = JSON.parse(savedEmail); emailVal = p.email || savedEmail; } catch(e) {}
+    currentUser = {
+      name: emailVal ? emailVal.split('@')[0] : 'User',
+      email: emailVal,
+      token: savedToken
+    };
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById('btn-login').innerHTML = `👤 ${currentUser.name.split(' ')[0]}`;
       if (localStorage.getItem('redirect_checkout') === 'true') {
@@ -500,14 +489,15 @@ function confirmRent() {
 function handleLoginClick() {
   if (currentUser) {
     document.getElementById('profile-name').innerText = currentUser.name;
-    document.getElementById('profile-phone').innerText = currentUser.phone;
-    
-    // Load Order History from LocalStorage
+    document.getElementById('profile-phone').innerText = currentUser.email || '';
+
+    // Load order history from localStorage
     try {
-      const history = JSON.parse(localStorage.getItem('sportx_orders_' + currentUser.phone) || '[]');
+      const orderKey = 'sportx_orders_' + (currentUser.email || currentUser.name);
+      const history = JSON.parse(localStorage.getItem(orderKey) || '[]');
       const section = document.getElementById('order-history-section');
       const list = document.getElementById('order-history-list');
-      
+
       if (history.length > 0) {
         section.style.display = 'block';
         list.innerHTML = history.map(o => `
@@ -526,7 +516,7 @@ function handleLoginClick() {
         section.style.display = 'none';
       }
     } catch(e) {}
-    
+
     document.getElementById('profile-modal').classList.add('active');
   } else {
     window.location.href = '/auth.html';
@@ -556,52 +546,16 @@ function beginCheckout() {
     window.location.href = '/auth.html';
   } else {
     document.getElementById('addr-name').value = currentUser.name || '';
-    document.getElementById('addr-pin').value = currentUser.phone || ''; // re-using pin field for phone/etc if needed, wait, address is addr-street
+    document.getElementById('addr-pin').value = '';
     document.getElementById('addr-street').value = currentUser.address || '';
     document.getElementById('address-modal').classList.add('active');
   }
 }
 
-let otpInterval = null;
-function requestOTP() {
-  const phone = document.getElementById('auth-phone').value.trim();
-  const name = document.getElementById('auth-name').value.trim();
-  if (!name) return showToast('Please enter your full name', 'error');
-  if (phone.replace(/\D/g,'').length < 10) return showToast('Please enter a valid 10-digit phone number', 'error');
-  document.getElementById('otp-code').value = '';
-  document.getElementById('auth-modal').classList.remove('active');
-  document.getElementById('otp-modal').classList.add('active');
-
-  let t = 30;
-  if (otpInterval) clearInterval(otpInterval);
-  document.getElementById('otp-timer').innerText = '00:30';
-  otpInterval = setInterval(() => {
-    t--;
-    document.getElementById('otp-timer').innerText = `00:${t < 10 ? '0'+t : t}`;
-    if (t <= 0) clearInterval(otpInterval);
-  }, 1000);
-}
-
-function verifyOTP() {
-  const o = document.getElementById('otp-code').value.trim();
-  if (o.length !== 4) return showToast('Please enter the 4-digit OTP', 'error');
-  clearInterval(otpInterval);
-  currentUser = {
-    name: document.getElementById('auth-name').value.trim(),
-    phone: document.getElementById('auth-phone').value.trim()
-  };
-  checkoutData.phone = currentUser.phone;
-  document.getElementById('btn-login').innerHTML = `👤 ${currentUser.name.split(' ')[0]}`;
-  document.getElementById('otp-modal').classList.remove('active');
-
-  if (_loginAfterCheckout) {
-    _loginAfterCheckout = false;
-    document.getElementById('addr-name').value = currentUser.name;
-    document.getElementById('address-modal').classList.add('active');
-  } else {
-    // just logging in — close everything
-    showToast(`Welcome, ${currentUser.name}!`);
-  }
+// Redirect to real email-OTP auth page; after login auth.html sets localStorage and returns here
+function goToAuth() {
+  localStorage.setItem('redirect_checkout', 'true');
+  window.location.href = '/auth.html';
 }
 
 function confirmAddress() {
@@ -726,20 +680,21 @@ async function processFinalCheckout() {
 
       // Save to localStorage for order history
       try {
-        if (currentUser && currentUser.phone) {
-          let history = JSON.parse(localStorage.getItem('sportx_orders_' + currentUser.phone) || '[]');
+        if (currentUser && (currentUser.email || currentUser.name)) {
+          const orderKey = 'sportx_orders_' + (currentUser.email || currentUser.name);
+          let history = JSON.parse(localStorage.getItem(orderKey) || '[]');
           history.unshift({
             id: json.orderId,
             total: snapshotTotal,
             date: new Date().toLocaleDateString(),
             status: 'Confirmed'
           });
-          localStorage.setItem('sportx_orders_' + currentUser.phone, JSON.stringify(history));
+          localStorage.setItem(orderKey, JSON.stringify(history));
         }
       } catch(e) {}
 
       // Reset checkout state
-      checkoutData = { address: '', paymentMethod: '', phone: currentUser ? currentUser.phone : '' };
+      checkoutData = { address: '', paymentMethod: '', phone: currentUser ? (currentUser.email || '') : '' };
 
       // Build payment detail line
       const paymentLine = snapshotUpiId
