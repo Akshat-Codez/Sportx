@@ -14,36 +14,40 @@
             <div class="logo-wrapper">
                 <span class="logo-text">S</span>
             </div>
-            
+
             <h2 class="title">SPORTX</h2>
-            
+
             <form id="authForm" class="auth-form">
                 <div class="auth-tabs">
-                    <!-- FIX #6: Pass event explicitly — implicit global `event` breaks in some browsers -->
-                    <button type="button" class="tab-btn active" onclick="switchTab(event, 'signup')">Sign Up</button>
-                    <button type="button" class="tab-btn" onclick="switchTab(event, 'signin')">Sign In</button>
+                    <button type="button" class="tab-btn active" onclick="switchTab(event,'signup')">Sign Up</button>
+                    <button type="button" class="tab-btn"        onclick="switchTab(event,'signin')">Sign In</button>
                 </div>
 
-                <div class="input-group" id="otpGroup" style="display: none;">
-                    <input type="text" id="otp" class="input-field" placeholder="Enter OTP sent to your email" maxlength="6">
-                </div>
-                
+                <!-- Phone + Password fields (always visible) -->
                 <div class="input-group">
-                    <input type="email" id="email" class="input-field" placeholder="Email" required>
+                    <input type="tel"      id="phone"    class="input-field" placeholder="+91 Phone Number" required>
                     <input type="password" id="password" class="input-field" placeholder="Password" required>
-                    <div id="errorMsg" class="error-msg"></div>
-                    <div id="successMsg" class="success-msg"></div>
                 </div>
-                
+
+                <!-- Name field — signup only -->
+                <div class="input-group" id="nameGroup" style="display:none;">
+                    <input type="text" id="name" class="input-field" placeholder="Full Name">
+                </div>
+
+                <!-- OTP field — shown after OTP is dispatched -->
+                <div class="input-group" id="otpGroup" style="display:none;">
+                    <input type="text" id="otp" class="input-field"
+                           placeholder="Enter 6-digit OTP" maxlength="6"
+                           style="letter-spacing:6px;font-size:20px;text-align:center;">
+                </div>
+
+                <div id="errorMsg"   class="error-msg"></div>
+                <div id="successMsg" class="success-msg"></div>
+
                 <hr class="divider">
-                
+
                 <div class="action-group">
                     <button type="submit" id="submitBtn" class="primary-btn">Create Account</button>
-                    
-                    <button type="button" class="google-btn">
-                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
-                        Continue with Google
-                    </button>
                 </div>
             </form>
         </div>
@@ -51,10 +55,9 @@
         <div class="social-proof">
             <p>Join <span class="highlight">thousands</span> of athletes already using SPORTX.</p>
             <div class="avatars">
-                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="user">
-                <!-- FIX #7: typo srcc → src -->
+                <img src="https://randomuser.me/api/portraits/men/32.jpg"   alt="user">
                 <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="user">
-                <img src="https://randomuser.me/api/portraits/men/54.jpg" alt="user">
+                <img src="https://randomuser.me/api/portraits/men/54.jpg"   alt="user">
                 <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="user">
             </div>
         </div>
@@ -65,103 +68,133 @@
         let otpSent      = false;
         let pendingToken = null;
 
+        // ── Tab switch ──
         function switchTab(e, mode) {
             currentMode  = mode;
             otpSent      = false;
             pendingToken = null;
+
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
-            document.getElementById('otpGroup').style.display = 'none';
-            document.getElementById('submitBtn').textContent  = mode === 'signup' ? 'Get OTP' : 'Sign In';
-            document.getElementById('errorMsg').textContent   = '';
-            document.getElementById('successMsg').innerHTML   = '';
+
+            // Show/hide name field
+            document.getElementById('nameGroup').style.display = mode === 'signup' ? 'block' : 'none';
+            // Hide OTP field until requested
+            document.getElementById('otpGroup').style.display  = 'none';
+            document.getElementById('otp').value               = '';
+
+            document.getElementById('submitBtn').textContent = mode === 'signup' ? 'Get OTP' : 'Sign In';
+            document.getElementById('errorMsg').textContent  = '';
+            document.getElementById('successMsg').textContent = '';
         }
 
+        // Init UI state
+        document.getElementById('nameGroup').style.display = 'block';
+        document.getElementById('submitBtn').textContent   = 'Get OTP';
+
+        // ── Form submit ──
         document.getElementById('authForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email     = document.getElementById('email').value.trim();
+
+            const phone     = document.getElementById('phone').value.trim().replace(/\s/g,'');
             const password  = document.getElementById('password').value;
+            const name      = document.getElementById('name').value.trim();
+            const otpVal    = document.getElementById('otp').value.trim();
             const errorMsg  = document.getElementById('errorMsg');
             const successMsg= document.getElementById('successMsg');
             const submitBtn = document.getElementById('submitBtn');
 
             errorMsg.textContent  = '';
-            successMsg.innerHTML  = '';
+            successMsg.textContent= '';
             submitBtn.disabled    = true;
             submitBtn.textContent = 'Please wait…';
 
             try {
+
+                // ════════════════════════════════
+                //  SIGN IN  (password)
+                // ════════════════════════════════
                 if (currentMode === 'signin') {
                     const res  = await fetch('/api/auth/login', {
-                        method: 'POST',
+                        method : 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email, password })
+                        body   : JSON.stringify({ phone, password })
                     });
                     const data = await res.json();
                     if (data.success) {
-                        localStorage.setItem('sportx_user',  email);
+                        localStorage.setItem('sportx_user',  data.name || phone);
+                        localStorage.setItem('sportx_phone', data.phone || phone);
                         localStorage.setItem('sportx_token', data.token);
                         window.location.href = '/';
                     } else {
                         errorMsg.textContent = data.message;
                     }
-
-                } else {
-                    if (!otpSent) {
-                        // ── Step 1: request OTP ──
-                        const res  = await fetch('/api/auth/register', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email, password, name: email.split('@')[0] })
-                        });
-                        const data = await res.json();
-                        if (data.success) {
-                            otpSent      = true;
-                            pendingToken = data.pendingToken || null;
-                            // Auto-fill the OTP field — server always returns it directly
-                            document.getElementById('otpGroup').style.display = 'block';
-                            document.getElementById('otp').value = data.otp || '';
-                            submitBtn.textContent = 'Verify & Create Account';
-                            successMsg.innerHTML  =
-                                `<span style="color:#2ed573">OTP ready!</span> ` +
-                                `Your code is <strong style="color:#F5A623;font-size:20px;letter-spacing:3px">${data.otp}</strong>` +
-                                ` — it's already filled in below. Just click Verify.`;
-                        } else {
-                            errorMsg.textContent = data.message;
-                        }
-
-                    } else {
-                        // ── Step 2: verify OTP ──
-                        const otp = document.getElementById('otp').value.trim();
-                        if (!otp) {
-                            errorMsg.textContent  = 'Please enter the OTP.';
-                            submitBtn.disabled    = false;
-                            submitBtn.textContent = 'Verify & Create Account';
-                            return;
-                        }
-                        const body = { email, otp, pendingToken };
-                        const res  = await fetch('/api/auth/verify-otp', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(body)
-                        });
-                        const data = await res.json();
-                        if (data.success) {
-                            localStorage.setItem('sportx_user',  email);
-                            localStorage.setItem('sportx_token', data.token);
-                            window.location.href = '/';
-                        } else {
-                            errorMsg.textContent = data.message;
-                        }
-                    }
+                    return;
                 }
+
+                // ════════════════════════════════
+                //  SIGN UP — Step 1: request OTP
+                // ════════════════════════════════
+                if (!otpSent) {
+                    if (!name) {
+                        errorMsg.textContent = 'Please enter your full name.';
+                        return;
+                    }
+                    const res  = await fetch('/api/auth/register', {
+                        method : 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body   : JSON.stringify({ phone, password, name })
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        otpSent      = true;
+                        pendingToken = data.pendingToken;
+
+                        // Show OTP input, hide name+password
+                        document.getElementById('otpGroup').style.display  = 'block';
+                        document.getElementById('nameGroup').style.display = 'none';
+                        document.getElementById('password').closest('.input-group').style.display = 'none';
+
+                        submitBtn.textContent  = 'Verify & Create Account';
+                        successMsg.textContent = 'OTP has been sent to your phone.';
+                        document.getElementById('otp').value = data._adminOtp;
+                    } else {
+                        errorMsg.textContent = data.message;
+                    }
+                    return;
+                }
+
+                // ════════════════════════════════
+                //  SIGN UP — Step 2: verify OTP
+                // ════════════════════════════════
+                if (!otpVal) {
+                    errorMsg.textContent = 'Please enter the 6-digit OTP.';
+                    return;
+                }
+                const res  = await fetch('/api/auth/verify-otp', {
+                    method : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body   : JSON.stringify({ phone, otp: otpVal, pendingToken })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    localStorage.setItem('sportx_user',  data.name || phone);
+                    localStorage.setItem('sportx_phone', data.phone || phone);
+                    localStorage.setItem('sportx_token', data.token);
+                    window.location.href = '/';
+                } else {
+                    errorMsg.textContent = data.message;
+                }
+
             } catch (err) {
                 errorMsg.textContent = 'Network error. Please try again.';
             } finally {
                 submitBtn.disabled = false;
-                if (!otpSent && currentMode === 'signup') submitBtn.textContent = 'Get OTP';
-                else if (otpSent)                         submitBtn.textContent = 'Verify & Create Account';
-                else                                      submitBtn.textContent = 'Sign In';
+                if (currentMode === 'signin')    submitBtn.textContent = 'Sign In';
+                else if (!otpSent)               submitBtn.textContent = 'Get OTP';
+                else                             submitBtn.textContent = 'Verify & Create Account';
             }
         });
     </script>

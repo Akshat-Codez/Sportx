@@ -247,3 +247,15 @@ nav{background:var(--dark2);padding:0 40px;display:flex;align-items:center;
 #upi-id-input.upi-valid { border-color: #2ed573; }
 #upi-id-input.upi-invalid { border-color: var(--danger); }
 #upi-otp-input:focus { border-color: var(--gold); }
+/* ── UPI MODAL STATES ── */
+#upi-state-error .btn-primary { margin-top: 0; }
+
+/* ── ORDER CONFIRMATION MODAL ── */
+#order-confirm-modal .checkout-modal {
+  animation: confirmSlideUp 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+@keyframes confirmSlideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+#confirm-order-id { user-select: all; cursor: text; }

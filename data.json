@@ -1,0 +1,236 @@
+{
+  "users": [
+    {
+      "id": "usr_1781421181016",
+      "phone": "8870996546",
+      "passwordHash": "8b550677a607a210c083c916a30cc40856a85d96d3f013afb6c6c114fe98b54b:02155d3e288ad908c2574d1b33968a9935d9133fce4d904c553a09f2813896d067762bd87552a53d984f04d39d4299a49798b99361045b88e47091f1073ef012",
+      "name": "Akshat Shukla",
+      "address": "",
+      "verified": true,
+      "createdAt": "2026-06-14T07:13:01.016Z"
+    }
+  ],
+  "cart": [
+    {
+      "id": 3,
+      "userId": "usr_1780379186782",
+      "productId": 2,
+      "type": "buy",
+      "qty": 1,
+      "days": 1
+    }
+  ],
+  "orders": [
+    {
+      "id": "SX-1781421195232",
+      "userId": "usr_1781421181016",
+      "total": 2699,
+      "securityDeposit": 0,
+      "createdAt": "2026-06-14T07:13:15.232Z",
+      "status": "delivered",
+      "address": "Akshat Shukla, Kota, PIN: 209861",
+      "paymentMethod": "COD",
+      "phone": "8870996546",
+      "items": [
+        {
+          "productId": 2,
+          "name": "Yonex Nanoflare",
+          "type": "buy",
+          "qty": 1,
+          "price": 2699
+        }
+      ]
+    },
+    {
+      "id": "SX-1781420081231",
+      "userId": "test_user_123",
+      "total": 772,
+      "securityDeposit": 499,
+      "createdAt": "2026-06-14T06:54:41.231Z",
+      "status": "delivered",
+      "address": "Test",
+      "paymentMethod": "UPI",
+      "phone": "",
+      "items": [
+        {
+          "productId": 1,
+          "name": "Pro Football",
+          "type": "rent",
+          "qty": 1,
+          "price": 273
+        }
+      ]
+    },
+    {
+      "id": "SX-1780416242829",
+      "total": 1299,
+      "securityDeposit": 0,
+      "createdAt": "2026-06-02T16:04:02.829Z",
+      "status": "delivered",
+      "address": "Akshat Shukla, Kota, PIN: 209861",
+      "paymentMethod": "COD",
+      "phone": "",
+      "items": [
+        {
+          "productId": 4,
+          "name": "Kookaburra Helmet",
+          "type": "buy",
+          "qty": 1,
+          "price": 1299
+        }
+      ]
+    },
+    {
+      "id": "SX-1780380771189",
+      "total": 1299,
+      "securityDeposit": 0,
+      "createdAt": "2026-06-02T06:12:51.189Z",
+      "status": "delivered",
+      "address": "Akshat Shukla, bmsce, PIN: 209861",
+      "paymentMethod": "COD",
+      "phone": "",
+      "items": [
+        {
+          "productId": 4,
+          "name": "Kookaburra Helmet",
+          "type": "buy",
+          "qty": 1,
+          "price": 1299
+        }
+      ]
+    }
+  ],
+  "cartIdx": 6,
+  "products": [
+    {
+      "id": 1,
+      "tag": "FIFA APPROVED",
+      "name": "Pro Football",
+      "price": 1499,
+      "rent": 39,
+      "icon": "⚽",
+      "filter": "balls",
+      "stock": 23
+    },
+    {
+      "id": 2,
+      "tag": "LIGHTWEIGHT",
+      "name": "Yonex Nanoflare",
+      "price": 2699,
+      "rent": 125,
+      "icon": "🏸",
+      "filter": "rackets",
+      "stock": 7
+    },
+    {
+      "id": 3,
+      "tag": "CLASSIC",
+      "name": "SS Kashmir Willow",
+      "price": 3999,
+      "rent": 105,
+      "icon": "🏏",
+      "filter": "sticks",
+      "stock": 15
+    },
+    {
+      "id": 4,
+      "tag": "DURABLE",
+      "name": "Kookaburra Helmet",
+      "price": 1299,
+      "rent": 49,
+      "icon": "⛑️",
+      "filter": "helmets",
+      "stock": 20
+    },
+    {
+      "id": 5,
+      "tag": "SPEED",
+      "name": "Nike Mercurial",
+      "price": 4999,
+      "rent": 190,
+      "icon": "👟",
+      "filter": "shoes",
+      "stock": 12
+    },
+    {
+      "id": 6,
+      "tag": "PRO BUNDLE",
+      "name": "Full Cricket Kit",
+      "price": 8599,
+      "rent": 499,
+      "icon": "🏏",
+      "filter": "kits",
+      "stock": 5
+    },
+    {
+      "id": 7,
+      "tag": "NBA GRADE",
+      "name": "NBA Spalding",
+      "price": 3999,
+      "rent": 99,
+      "icon": "🏀",
+      "filter": "balls",
+      "stock": 18
+    },
+    {
+      "id": 8,
+      "tag": "TOUR",
+      "name": "Wilson Pro Staff",
+      "price": 9999,
+      "rent": 550,
+      "icon": "🎾",
+      "filter": "rackets",
+      "stock": 3
+    },
+    {
+      "id": 9,
+      "tag": "PRO SPIN",
+      "name": "Butterfly TT Racket",
+      "price": 2499,
+      "rent": 75,
+      "icon": "🏓",
+      "filter": "rackets",
+      "stock": 14
+    },
+    {
+      "id": 10,
+      "tag": "ICE GRIP",
+      "name": "Bauer Ice Hockey Skates",
+      "price": 7999,
+      "rent": 350,
+      "icon": "⛸️",
+      "filter": "shoes",
+      "stock": 6
+    },
+    {
+      "id": 11,
+      "tag": "TOURNAMENT",
+      "name": "Selkirk Pickleball Paddle",
+      "price": 3499,
+      "rent": 120,
+      "icon": "🏓",
+      "filter": "rackets",
+      "stock": 10
+    },
+    {
+      "id": 12,
+      "tag": "STREET",
+      "name": "Pro Glide Skates",
+      "price": 2999,
+      "rent": 95,
+      "icon": "🛼",
+      "filter": "shoes",
+      "stock": 22
+    },
+    {
+      "id": 13,
+      "tag": "PRO ICE",
+      "name": "Bauer Ice Hockey Stick",
+      "price": 5999,
+      "rent": 250,
+      "icon": "🏒",
+      "filter": "sticks",
+      "stock": 9
+    }
+  ]
+}

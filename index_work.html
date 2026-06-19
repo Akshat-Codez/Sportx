@@ -156,343 +156,152 @@
     animation: sx-spin 0.7s linear infinite;
   }
 
-  /* ════════════════════════════════════════════
-     EXPANDABLE PRODUCT CARD OVERLAY
-  ════════════════════════════════════════════ */
-
-  /* Backdrop blur overlay */
-  #sx-card-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.82);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+  /* ══════════════════════════════════════
+     PRODUCT DETAIL MODAL
+  ══════════════════════════════════════ */
+  #product-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.82);
+    backdrop-filter: blur(6px);
     z-index: 4000;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
   }
-  #sx-card-backdrop.active {
-    opacity: 1;
-    pointer-events: auto;
+  #product-modal-overlay.pdm-open {
+    opacity: 1; pointer-events: auto;
   }
-
-  /* Panel */
-  #sx-card-panel {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.88);
-    z-index: 4001;
-    width: min(860px, 94vw);
-    max-height: 88vh;
-    background: #0f0f0f;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 24px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    opacity: 0;
-    pointer-events: none;
-    transition:
-      opacity 0.38s cubic-bezier(0.4, 0, 0.2, 1),
-      transform 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 40px 100px rgba(0,0,0,0.9), 0 0 0 1px rgba(245,166,35,0.05);
-  }
-  #sx-card-panel.active {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translate(-50%, -50%) scale(1);
-  }
-
-  /* Hero image area */
-  #sx-panel-hero {
-    position: relative;
-    height: 280px;
-    flex-shrink: 0;
-    overflow: hidden;
-  }
-  #sx-panel-hero-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    filter: brightness(0.8);
-    transition: transform 0.6s ease, filter 0.4s ease;
-  }
-  #sx-card-panel.active #sx-panel-hero-img {
-    transform: scale(1.04);
-  }
-  /* gradient fade over hero */
-  #sx-panel-hero::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to bottom,
-      transparent 30%,
-      rgba(0,0,0,0.55) 70%,
-      #0f0f0f 100%
-    );
-  }
-  /* tag badge on hero */
-  #sx-panel-tag {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 2;
-    background: var(--gold);
-    color: #000;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1.5px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    text-transform: uppercase;
-  }
-  /* product icon image centred on hero */
-  #sx-panel-icon {
-    position: absolute;
-    bottom: 24px;
-    left: 28px;
-    z-index: 2;
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    overflow: hidden;
-    filter: drop-shadow(0 6px 20px rgba(0,0,0,0.7));
-    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  #sx-panel-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  #sx-card-panel.active #sx-panel-icon {
-    transform: scale(1) translateY(0);
-  }
-
-  /* Close button */
-  #sx-panel-close {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 10;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: rgba(15,15,15,0.7);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: #fff;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s, transform 0.3s;
-    backdrop-filter: blur(8px);
-  }
-  #sx-panel-close:hover {
-    background: rgba(245,166,35,0.15);
-    border-color: rgba(245,166,35,0.5);
-    transform: rotate(90deg);
-  }
-
-  /* Body area */
-  #sx-panel-body {
+  .pdm-box {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    width: 100%; max-width: 780px;
+    max-height: 90vh;
     overflow-y: auto;
-    overscroll-behavior: contain;
-    padding: 28px 32px 36px;
-    scrollbar-width: none;
-    flex: 1;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    position: relative;
+    transform: translateY(24px) scale(0.97);
+    transition: transform 0.28s cubic-bezier(0.175,0.885,0.32,1.275);
+    scrollbar-width: thin;
+    scrollbar-color: #2a2a2a transparent;
   }
-  #sx-panel-body::-webkit-scrollbar { display: none; }
+  #product-modal-overlay.pdm-open .pdm-box {
+    transform: translateY(0) scale(1);
+  }
+  .pdm-close {
+    position: absolute; top: 14px; right: 16px;
+    background: rgba(255,255,255,0.06); border: 1px solid #333;
+    color: #aaa; width: 32px; height: 32px; border-radius: 50%;
+    cursor: pointer; font-size: 18px; z-index: 2;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, color 0.2s;
+  }
+  .pdm-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
 
-  /* Name + description */
-  #sx-panel-name {
+  /* left panel */
+  .pdm-visual {
+    background: #1a1a1a;
+    border-right: 1px solid #2a2a2a;
+    border-radius: 16px 0 0 16px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 32px 20px; gap: 16px;
+  }
+  .pdm-emoji { font-size: 88px; line-height: 1; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.5)); }
+  .pdm-tag-badge {
+    background: var(--gold); color: #000;
+    font-size: 10px; font-weight: 800;
+    padding: 4px 10px; border-radius: 20px; letter-spacing: 1px;
+  }
+  .pdm-img-hint { color: #444; font-size: 11px; text-align: center; margin-top: 4px; }
+
+  /* right panel */
+  .pdm-info { padding: 28px 28px 28px 26px; display: flex; flex-direction: column; gap: 16px; }
+  .pdm-name {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 38px;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: 0.5px;
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-  #sx-panel-desc {
-    font-size: 13px;
-    color: var(--gold);
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 24px;
+    font-size: 32px; font-weight: 900; line-height: 1.05;
+    color: #fff; letter-spacing: 0.3px;
   }
 
-  /* Stats row */
-  .sx-panel-stats {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
-  }
-  .sx-stat {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 14px;
-    padding: 14px 20px;
-    flex: 1;
-    min-width: 110px;
-  }
-  .sx-stat-label {
-    font-size: 10px;
-    color: #666;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  .sx-stat-val {
-    font-size: 20px;
-    font-weight: 700;
-    color: #fff;
-  }
-  .sx-stat.gold .sx-stat-val { color: var(--gold); }
+  /* star rating */
+  .pdm-rating-row { display: flex; align-items: center; gap: 8px; }
+  .pdm-stars { display: flex; gap: 2px; }
+  .pdm-star { font-size: 15px; }
+  .pdm-star.filled { color: var(--gold); }
+  .pdm-star.half { color: var(--gold); opacity: 0.6; }
+  .pdm-star.empty { color: #333; }
+  .pdm-rating-num { font-size: 15px; font-weight: 700; color: #fff; }
+  .pdm-review-count { font-size: 13px; color: #666; }
 
-  /* Feature bullets */
-  .sx-panel-features {
-    margin-bottom: 28px;
+  /* price block */
+  .pdm-price-block { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .pdm-price { font-size: 30px; font-weight: 700; color: #fff; }
+  .pdm-rent-pill {
+    background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.25);
+    color: var(--gold); font-size: 13px; font-weight: 600;
+    padding: 4px 12px; border-radius: 20px;
   }
-  .sx-panel-features-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #555;
-    margin-bottom: 14px;
+
+  /* specs */
+  .pdm-specs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
   }
-  .sx-feature-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  .pdm-spec {
+    background: #1a1a1a; border: 1px solid #252525;
+    border-radius: 8px; padding: 10px 12px;
   }
-  .sx-feature-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    font-size: 14px;
-    color: #aaa;
-    line-height: 1.5;
+  .pdm-spec-label { font-size: 10px; color: #555; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; }
+  .pdm-spec-val { font-size: 13px; color: #ddd; font-weight: 500; }
+
+  /* description */
+  .pdm-desc { font-size: 14px; color: #888; line-height: 1.65; }
+
+  /* reviews */
+  .pdm-reviews-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px; font-weight: 700; color: #fff;
+    letter-spacing: 0.5px; margin-bottom: 10px;
   }
-  .sx-feature-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--gold);
-    margin-top: 7px;
-    flex-shrink: 0;
+  .pdm-reviews { display: flex; flex-direction: column; gap: 10px; }
+  .pdm-review {
+    background: #161616; border: 1px solid #222;
+    border-radius: 10px; padding: 12px 14px;
   }
+  .pdm-rv-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .pdm-rv-name { font-size: 13px; font-weight: 600; color: #ddd; }
+  .pdm-rv-stars { display: flex; gap: 2px; font-size: 12px; }
+  .pdm-rv-text { font-size: 13px; color: #777; line-height: 1.55; }
+  .pdm-rv-date { font-size: 11px; color: #444; margin-top: 4px; }
 
   /* CTA row */
-  .sx-panel-cta {
-    display: flex;
-    gap: 12px;
-    margin-top: 8px;
+  .pdm-cta { display: flex; gap: 10px; margin-top: 4px; }
+  .pdm-btn-buy {
+    flex: 1; padding: 13px; background: var(--gold); border: none;
+    border-radius: 8px; font-size: 15px; font-weight: 700;
+    color: #000; cursor: pointer; transition: background 0.2s;
+    position: relative;
   }
-  .sx-panel-cta .btn-buy {
-    flex: 1;
-    padding: 14px;
-    font-size: 15px;
-    border-radius: 10px;
+  .pdm-btn-buy:hover { background: #d48a1a; }
+  .pdm-btn-rent {
+    flex: 1; padding: 13px; background: transparent;
+    border: 1px solid var(--gold); border-radius: 8px;
+    font-size: 15px; font-weight: 600; color: var(--gold);
+    cursor: pointer; transition: background 0.2s;
   }
-  .sx-panel-cta .btn-rent {
-    flex: 1;
-    padding: 14px;
-    font-size: 15px;
-    border-radius: 10px;
-  }
+  .pdm-btn-rent:hover { background: rgba(245,166,35,0.08); }
 
-  /* Stock pill */
-  .sx-stock-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-bottom: 22px;
-  }
-  .sx-stock-pill.ok {
-    background: rgba(46,213,115,0.1);
-    border: 1px solid rgba(46,213,115,0.25);
-    color: #2ed573;
-  }
-  .sx-stock-pill.low {
-    background: rgba(230,126,34,0.1);
-    border: 1px solid rgba(230,126,34,0.3);
-    color: #e67e22;
-  }
-  .sx-stock-pill.oos {
-    background: rgba(255,71,87,0.1);
-    border: 1px solid rgba(255,71,87,0.25);
-    color: #ff4757;
-  }
-  .sx-stock-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: currentColor;
-    animation: sx-pulse-dot 1.8s ease-in-out infinite;
-  }
-  @keyframes sx-pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.45; transform: scale(0.7); }
-  }
+  /* card image clickable */
+  .card-img { cursor: zoom-in; }
 
-  /* Divider line */
-  .sx-panel-divider {
-    border: none;
-    border-top: 1px solid rgba(255,255,255,0.06);
-    margin: 24px 0;
-  }
-
-  /* Slide-in animation for body content */
-  @keyframes sx-panel-content-in {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  #sx-card-panel.active #sx-panel-body > * {
-    animation: sx-panel-content-in 0.42s cubic-bezier(0.4,0,0.2,1) both;
-  }
-  #sx-card-panel.active #sx-panel-body > *:nth-child(1) { animation-delay: 0.10s; }
-  #sx-card-panel.active #sx-panel-body > *:nth-child(2) { animation-delay: 0.15s; }
-  #sx-card-panel.active #sx-panel-body > *:nth-child(3) { animation-delay: 0.20s; }
-  #sx-card-panel.active #sx-panel-body > *:nth-child(4) { animation-delay: 0.25s; }
-  #sx-card-panel.active #sx-panel-body > *:nth-child(5) { animation-delay: 0.30s; }
-  #sx-card-panel.active #sx-panel-body > *:nth-child(6) { animation-delay: 0.35s; }
-
-  /* Make existing product cards clickable-feeling */
-  .card { cursor: pointer; }
-  .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
-
-  /* Mobile */
+  /* responsive */
   @media (max-width: 640px) {
-    #sx-card-panel {
-      width: 100%;
-      max-height: 92vh;
-      bottom: 0;
-      top: auto;
-      left: 0;
-      transform: translateY(60px);
-      border-radius: 20px 20px 0 0;
-    }
-    #sx-card-panel.active {
-      transform: translateY(0);
-    }
-    #sx-panel-hero { height: 220px; }
-    #sx-panel-icon { width: 52px; height: 52px; }
-    #sx-panel-name { font-size: 28px; }
-    #sx-panel-body { padding: 20px 20px 40px; }
-    .sx-panel-cta { flex-direction: column; }
+    .pdm-box { grid-template-columns: 1fr; max-height: 96vh; }
+    .pdm-visual { border-right: none; border-bottom: 1px solid #2a2a2a; border-radius: 16px 16px 0 0; padding: 24px; }
+    .pdm-emoji { font-size: 64px; }
+    .pdm-specs { grid-template-columns: 1fr 1fr; }
+    .pdm-info { padding: 20px; }
   }
 </style>
 </head>
@@ -503,9 +312,7 @@
 
 <nav>
   <div>
-    <div class="logo">
-      <img src="/logo.jpg" alt="SPORTX" style="height: 40px; display: block; filter: brightness(1.2);">
-    </div>
+    <div class="logo">SPORT<span>X</span></div>
     <div class="logo-sub">PRO GRADE · RENT · OWN · ELITE SERVICE</div>
   </div>
   <div class="nav-right">
@@ -623,22 +430,6 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="profile-modal">
-  <div class="checkout-modal" style="text-align:left;">
-    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#ff4757;font-weight:bold;font-size:32px;" onclick="closeAllModals()">&times;</button>
-    <h3 style="text-align:center;">YOUR PROFILE</h3>
-    <div style="margin-top:15px;">
-      <p style="color:#ccc; margin-bottom:5px;"><b>Name:</b> <span id="prof-name" style="color:#fff"></span></p>
-      <p style="color:#ccc; margin-bottom:20px;"><b>Phone:</b> <span id="prof-phone" style="color:#fff"></span></p>
-      <h4 style="color:var(--gold); font-family:'Barlow Condensed',sans-serif; font-size:18px; margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px;">PREVIOUS ORDERS</h4>
-      <div id="prof-orders" style="max-height:200px; overflow-y:auto; margin-bottom:20px; padding-right:10px;">
-        <!-- Orders injected here -->
-      </div>
-      <button class="btn-primary" style="background:#ff4757; color:#fff;" onclick="logout()">Logout</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="address-modal">
   <div class="checkout-modal">
     <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()">&times;</button>
@@ -725,342 +516,7 @@
 <!-- Toasts -->
 <div class="toast-container" id="toasts"></div>
 
-<!-- ═══ EXPANDABLE PRODUCT CARD OVERLAY ═══ -->
-<div id="sx-card-backdrop" onclick="closeProductPanel()"></div>
-<div id="sx-card-panel" role="dialog" aria-modal="true" aria-labelledby="sx-panel-name">
-  <button id="sx-panel-close" onclick="closeProductPanel()" aria-label="Close product details">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-         fill="none" stroke="currentColor" stroke-width="2.2"
-         stroke-linecap="round" stroke-linejoin="round">
-      <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-    </svg>
-  </button>
-  <!-- Hero -->
-  <div id="sx-panel-hero">
-    <img id="sx-panel-hero-img" src="" alt="" />
-    <span id="sx-panel-tag"></span>
-    <div id="sx-panel-icon"></div>
-  </div>
-  <!-- Body -->
-  <div id="sx-panel-body">
-    <div id="sx-panel-desc"></div>
-    <div id="sx-panel-name"></div>
-    <div id="sx-panel-stock-pill" class="sx-stock-pill ok">
-      <span class="sx-stock-dot"></span>
-      <span id="sx-panel-stock-text">In Stock</span>
-    </div>
-    <div class="sx-panel-stats" id="sx-panel-stats"></div>
-    <hr class="sx-panel-divider">
-    <div class="sx-panel-features" id="sx-panel-features"></div>
-    <div class="sx-panel-cta" id="sx-panel-cta"></div>
-  </div>
-</div>
-
-</div>
-
 <script src="loading.js"></script>
-<script>
-/* ═══════════════════════════════════════════════════════════
-   EXPANDABLE PRODUCT PANEL  —  vanilla JS
-═══════════════════════════════════════════════════════════ */
-
-// Map each filter category → an Unsplash image that fits the sport
-const PRODUCT_IMAGES = {
-  balls:   'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=860&h=560&fit=crop&auto=format',
-  rackets: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=860&h=560&fit=crop&auto=format',
-  sticks:  'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=860&h=560&fit=crop&auto=format',
-  helmets: 'https://images.unsplash.com/photo-1614632537197-38a17061c2bd?w=860&h=560&fit=crop&auto=format',
-  shoes:   'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=860&h=560&fit=crop&auto=format',
-  kits:    'https://images.unsplash.com/photo-1593341646782-e0b495cff86d?w=860&h=560&fit=crop&auto=format',
-  default: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=860&h=560&fit=crop&auto=format'
-};
-
-// Per-product images — add/change URLs here to set a specific image for any product
-const PRODUCT_IMAGE_BY_ID = {
-  2: 'https://th.bing.com/th/id/R.d196522743c42a525ba6191299c38151?rik=Jr2MUWOnhb0Xig&riu=http%3a%2f%2fsportsmart.com.au%2fcdn%2fshop%2ffiles%2f100182_full.jpg%3fv%3d1692316094&ehk=2SCe2zpITRmXZ2GFSz2j%2b97R2I2SStNLnsyEZyzMHw0%3d&risl=&pid=ImgRaw&r=0',   // Badminton — Yonex Nanoflare
-  3: 'https://www.sstoncricket.com/wp-content/uploads/2023/04/LE-scaled.jpg',   // Cricket Bat — SS Kashmir Willow
-  4: 'https://tse4.mm.bing.net/th/id/OIP.1uqfUhonfJhWEz_ZJ0giLAHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',   // Helmet — Kookaburra Helmet
-  6: 'https://th.bing.com/th/id/OIP.UCad2PzniyKKbEwpaX-OUQHaHa?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3',   // Cricket Kit — Full Cricket Kit
-  7: 'https://th.bing.com/th/id/OIP.w02d6d6ZMziYcHWsjL1_WAHaEK?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3',   // Basketball — NBA Spalding
-  8: 'https://tse2.mm.bing.net/th/id/OIP.cId0rQRIx2IYG6ZVrWUSHgHaHa?r=0&w=2600&h=2600&rs=1&pid=ImgDetMain&o=7&rm=3',   // Hockey Stick — Wilson Pro Staff
-  9: 'https://tse3.mm.bing.net/th/id/OIP.YEHYQaLN2SezCdJJECzy4gHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',   // Table Tennis — Butterfly TT Racket
-  10: 'https://th.bing.com/th/id/OIP.2GcLwN5lyxjNWblGzD6e1AHaHa?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3',  // Ice Hockey Skates — Bauer Ice Hockey Skates
-  11: 'https://m.media-amazon.com/images/I/81p9e7WCNYL._AC_SL1500_.jpg',  // Pickleball — Selkirk Pickleball Paddle
-  12: 'https://tse1.mm.bing.net/th/id/OIP.yumQMOZGKgMc4iSgCj4wQwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',   // Roller Skates
-  13: 'https://tse3.mm.bing.net/th/id/OIP.7X01JX8kCkdRQmTc4hdX1QHaH-?r=0&w=2245&h=2420&rs=1&pid=ImgDetMain&o=7&rm=3',   // Ice Hockey Stick
-};
-
-// Helper: get the best image for a product (per-product > category > default)
-function getProductImage(product) {
-  if (PRODUCT_IMAGE_BY_ID[product.id]) return PRODUCT_IMAGE_BY_ID[product.id];
-  if (product.image) return product.image;
-  return PRODUCT_IMAGES[product.filter] || PRODUCT_IMAGES.default;
-}
-
-// Rich product detail copy per product ID
-const PRODUCT_DETAILS = {
-  1: {
-    subtitle: 'FIFA Approved · Match Grade',
-    features: [
-      'FIFA Quality Pro certified — meets all official tournament standards',
-      'Premium 32-panel butyl inner bladder for consistent pressure retention',
-      'Textured TPU outer shell for enhanced grip in wet conditions',
-      'Optimum 410g match weight, 68–70cm circumference',
-      'Compatible with all standard inflators; includes valve adapter'
-    ]
-  },
-  2: {
-    subtitle: 'Yonex · Lightweight Series',
-    features: [
-      'Ultra-lightweight 4U (avg. 83g) frame for blistering swing speed',
-      'Nanomesh + Carbon Nanotube shaft reduces flex for sharper repulsion',
-      'Built-in T-Anchor system for reinforced T-joint durability',
-      'Slim 22mm shaft diameter delivers maximum power transfer',
-      'Recommended string tension: 20–28 lbs'
-    ]
-  },
-  3: {
-    subtitle: 'SS · Kashmir Willow',
-    features: [
-      'Grade-A Kashmir Willow blade — ideal for tape-ball and soft-ball play',
-      'Optimally curved blade profile with balanced sweet spot',
-      'Full cane handle with twin-grip rubber for reduced vibration',
-      'Short handle 2¼" grip, suitable for all sizes',
-      'Pre-knocked and ready to play straight out of the wrapper'
-    ]
-  },
-  4: {
-    subtitle: 'Kookaburra · Head Protection',
-    features: [
-      'ABS outer shell with high-density foam inner lining for maximum impact absorption',
-      'Full 360° protection including dual-density temple padding',
-      'Anti-sweat ventilation system with 8 air-flow channels',
-      'Adjustable chin harness with quick-release buckle',
-      'Certified to AS/NZS 4499.1 safety standards'
-    ]
-  },
-  5: {
-    subtitle: 'Nike · Speed Edition',
-    features: [
-      'Flyknit upper for a seamless, sock-like adaptive fit',
-      'Chevron-patterned rubber outsole optimised for firm ground traction',
-      'Dynamic Fit collar wraps the ankle for locked-in stability',
-      'Reactive foam midsole absorbs impact and returns energy',
-      'Available sizes: UK 5–12 | True-to-size fit'
-    ]
-  },
-  6: {
-    subtitle: 'Complete 9-Piece Cricket Set',
-    features: [
-      'Includes: bat, ball, 6 stumps, 4 bails, gloves, leg pads (pair), and kit bag',
-      'Kashmir Willow bat with full cane handle',
-      'Leather match ball — red, hand-stitched, 5.5oz',
-      'Reinforced kit bag with separate bat sleeve and shoe compartment',
-      'Suitable for club and academy-level training'
-    ]
-  },
-  7: {
-    subtitle: 'NBA Official · Spalding Edition',
-    features: [
-      'Spalding NBA Official Game Ball replica — genuine composite leather',
-      'Deep channel design for superior ball control and spin',
-      'Designed for indoor hardwood courts; size 7 (29.5" circumference)',
-      'Cushion Core Technology for consistent bounce at any pressure',
-      'Inflation needle and pump included'
-    ]
-  },
-  8: {
-    subtitle: 'Wilson · Tour Signature',
-    features: [
-      'Wilson Pro Staff Tour 90 — the racket that defined a generation',
-      'Braided graphite + Kevlar construction for unmatched feel and control',
-      'Head size: 90 sq in | Weight: 340g | Balance: 5pts HL',
-      'Ideal for advanced and professional players seeking surgical precision',
-      'Includes full-length cover and replacement grip tape'
-    ]
-  },
-  9: {
-    subtitle: 'Butterfly · Professional Series',
-    features: [
-      'Butterfly Viscaria blade — used by world champions for over 20 years',
-      'ALC (Arylate Carbon) fibre layers for explosive speed with great control',
-      'Flared handle with anatomic grip for comfortable extended play',
-      'Tenergy 05 rubber on both sides for maximum spin generation',
-      'ITTF-approved for all sanctioned tournament play'
-    ]
-  },
-  10: {
-    subtitle: 'Bauer · Performance Fit',
-    features: [
-      'Bauer Supreme series — designed for elite power skaters',
-      '3D-lasted Curv composite quarter for lightweight structural support',
-      'TUUK LS Pulse TI steel runner for superior edge grip on ice',
-      'Memory foam ankle padding moulds to your foot for a custom fit',
-      'Available sizes: US 6–13 | D and EE widths'
-    ]
-  },
-  11: {
-    subtitle: 'Selkirk · Power Series',
-    features: [
-      'Selkirk VANGUARD Power Air — pro-level carbon fibre face',
-      'Proprietary Air Dynamic Throat for reduced drag and faster swings',
-      'Edgeless design provides maximum paddle face surface area',
-      'SuperCore polymer honeycomb core for soft touch and power balance',
-      'USAPA-approved | Weight: 7.7–8.1 oz | Grip circumference: 4¼"'
-    ]
-  },
-  12: {
-    subtitle: 'Pro Glide · Recreational Series',
-    features: [
-      'High-rebound 82A PU wheels for smooth rolling on all surfaces',
-      'ABEC-7 precision bearings for effortless speed and low friction',
-      'Reinforced ankle support with padded collar and tongue',
-      'Tool-free brake system — adjustable stopper for beginners and pros',
-      'Available sizes: UK 4–12 | Unisex fit'
-    ]
-  },
-  13: {
-    subtitle: 'Bauer · Nexus Series',
-    features: [
-      'Bauer Nexus Geo composite shaft — optimised kick point for powerful shots',
-      'eLASTech blade core provides consistent energy transfer on impact',
-      'Micro-feel blade texture for superior puck control and handling',
-      'Lightweight construction at 420g for quick wrist and slap shots',
-      'Right and left-hand options | Flex: 75–87 | Blade pattern: P92'
-    ]
-  }
-};
-
-let _panelOpen = false;
-let _currentPanelProduct = null;
-
-function openProductPanel(product, hideImage = false) {
-  _currentPanelProduct = product;
-  _panelOpen = true;
-
-  const details = PRODUCT_DETAILS[product.id] || {
-    subtitle: product.tag,
-    features: [
-      `Top-grade ${product.filter} equipment built for performance`,
-      'Tested by professional athletes across India',
-      'Available for rent or purchase — flexible plans',
-    ]
-  };
-
-  const imgSrc = getProductImage(product);
-
-  // Hero
-  const heroContainer = document.getElementById('sx-panel-hero');
-  const heroImg = document.getElementById('sx-panel-hero-img');
-  const iconEl = document.getElementById('sx-panel-icon');
-  
-  if (hideImage) {
-    // Double-click: hide the entire hero container to remove black space
-    heroContainer.style.display = 'none';
-  } else {
-    heroContainer.style.display = 'block';
-    heroImg.src = imgSrc;
-    heroImg.alt = product.name;
-    iconEl.style.display = 'block';
-    iconEl.innerHTML = `<img src="${imgSrc}" alt="${product.name}" />`;
-  }
-
-  document.getElementById('sx-panel-tag').innerText = product.tag;
-
-  // Body text
-  document.getElementById('sx-panel-name').innerText = product.name;
-  document.getElementById('sx-panel-desc').innerText = details.subtitle;
-
-  // Stock pill
-  const pill = document.getElementById('sx-panel-stock-pill');
-  const pillText = document.getElementById('sx-panel-stock-text');
-  pill.className = 'sx-stock-pill';
-  if (product.stock === 0) {
-    pill.classList.add('oos');
-    pillText.innerText = 'Out of Stock';
-  } else if (product.stock <= 5) {
-    pill.classList.add('low');
-    pillText.innerText = `Only ${product.stock} left — order soon`;
-  } else {
-    pill.classList.add('ok');
-    pillText.innerText = `${product.stock} units in stock`;
-  }
-
-  // Stats row
-  const stats = document.getElementById('sx-panel-stats');
-  stats.innerHTML = `
-    <div class="sx-stat gold">
-      <div class="sx-stat-label">Buy Price</div>
-      <div class="sx-stat-val">₹${product.price.toLocaleString()}</div>
-    </div>
-    <div class="sx-stat">
-      <div class="sx-stat-label">Rent / Day</div>
-      <div class="sx-stat-val">₹${product.rent}</div>
-    </div>
-    <div class="sx-stat">
-      <div class="sx-stat-label">Min. Rental</div>
-      <div class="sx-stat-val">7 days</div>
-    </div>
-    <div class="sx-stat">
-      <div class="sx-stat-label">Category</div>
-      <div class="sx-stat-val" style="font-size:15px;text-transform:capitalize">${product.filter}</div>
-    </div>
-  `;
-
-  // Features
-  const feats = document.getElementById('sx-panel-features');
-  feats.innerHTML = `
-    <div class="sx-panel-features-title">What's included / Specs</div>
-    <div class="sx-feature-list">
-      ${details.features.map(f => `
-        <div class="sx-feature-item">
-          <span class="sx-feature-dot"></span>
-          <span>${f}</span>
-        </div>`).join('')}
-    </div>
-  `;
-
-  // CTA buttons
-  const isOos = product.stock === 0;
-  const cta = document.getElementById('sx-panel-cta');
-  cta.innerHTML = `
-    <button class="btn-buy" ${isOos ? 'disabled' : ''}
-      onclick="panelAddToCart(${product.id}, 'buy', this)">
-      ${isOos ? 'Out of Stock' : 'Buy Now — ₹' + product.price.toLocaleString()}
-    </button>
-    <button class="btn-rent" ${isOos ? 'disabled' : ''}
-      onclick="closeProductPanel(); openRentModal(${product.id}, '${product.name.replace(/'/g, "\\'")}')">
-      Rent from ₹${product.rent}/day
-    </button>
-  `;
-
-  // Activate
-  document.body.style.overflow = 'hidden';
-  document.getElementById('sx-card-backdrop').classList.add('active');
-  document.getElementById('sx-card-panel').classList.add('active');
-}
-
-function closeProductPanel() {
-  if (!_panelOpen) return;
-  _panelOpen = false;
-  document.getElementById('sx-card-backdrop').classList.remove('active');
-  document.getElementById('sx-card-panel').classList.remove('active');
-  document.body.style.overflow = '';
-}
-
-async function panelAddToCart(productId, type, btn) {
-  await SXLoading.buttonAction(btn, async () => {
-    await _doAddToCart(productId, type, 1);
-  }, 'gold');
-  closeProductPanel();
-}
-
-// Close on Escape
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && _panelOpen) closeProductPanel();
-});
-</script>
-
 <script>
 /* ═══════════════════════════════════════════════════════════
    STOREFRONT FUNCTIONALITY (DYNAMIC DATA & CART)
@@ -1070,26 +526,12 @@ SXLoading.showPageLoader();
 let allProducts = [];
 let pendingRentProduct = null;
 
-async function apiFetch(url, options = {}) {
-  const token = localStorage.getItem('sportx_token');
-  if (!options.headers) options.headers = {};
-  if (token) options.headers['Authorization'] = `Bearer ${token}`;
-  const res = await window.fetch(url, options);
-  if (res.status === 401) {
-    showToast('Please log in to continue.', 'error');
-    openAuthModal();
-    return null;
-  }
-  return res;
-}
-
 async function initStore() {
   // Show product card skeletons immediately
   SXLoading.showProductSkeletons(document.getElementById('product-grid'), 8);
 
   try {
-    const res = await apiFetch('/api/products');
-    if(!res) return;
+    const res = await fetch('/api/products');
     const json = await res.json();
     if(json.success) {
       allProducts = json.data;
@@ -1128,52 +570,19 @@ function renderCards(list) {
     return;
   }
   list.forEach(p => {
-    const isOos = p.stock === 0;
-    const isLow = p.stock > 0 && p.stock <= 5;
     const card = document.createElement("div");
-    card.className = "card" + (isOos ? " out-of-stock" : "");
-    card.setAttribute("role", "button");
-    card.setAttribute("tabindex", "0");
-    card.setAttribute("aria-label", `View details for ${p.name}`);
+    card.className = "card";
     card.innerHTML = `
-      <div class="card-img" aria-hidden="true">
-        <span class="card-tag">${p.tag}</span>
-        ${isOos ? '<span class="card-tag card-tag-oos">SOLD OUT</span>' : ''}
-        ${isLow ? `<span class="card-tag card-tag-low">ONLY ${p.stock} LEFT</span>` : ''}
-        <img src="${getProductImage(p)}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover;" />
-      </div>
+      <div class="card-img" aria-hidden="true"><span class="card-tag">${p.tag}</span>${p.icon.startsWith('http') ? `<img src="${p.icon}" alt="${p.name}" style="width:100px; height:100px; object-fit:cover; border-radius:50%; box-shadow:0 10px 10px rgba(0,0,0,0.3); background-color:#fff;" />` : p.icon}</div>
       <div class="card-body">
         <div class="card-name">${p.name}</div>
         <div class="card-price">₹${p.price.toLocaleString()}</div>
         <div class="card-rent">Rent from ₹${p.rent}/day</div>
         <div class="card-actions">
-          <button class="btn-buy" ${isOos ? 'disabled' : ''}
-            onclick="event.stopPropagation(); addToCart(${p.id}, 'buy', 1, this)"
-            aria-label="Buy ${p.name}">Buy</button>
-          <button class="btn-rent" ${isOos ? 'disabled' : ''}
-            onclick="event.stopPropagation(); openRentModal(${p.id}, '${p.name.replace(/'/g, "\\'")}')"
-            aria-label="Rent ${p.name}">Rent</button>
+          <button class="btn-buy" onclick="addToCart(${p.id}, 'buy', 1, this)" aria-label="Buy ${p.name}">Buy</button>
+          <button class="btn-rent" onclick="openRentModal(${p.id}, '${p.name}')" aria-label="Rent ${p.name}">Rent</button>
         </div>
       </div>`;
-
-    // Open panel on card click (but not on button clicks)
-    let clickTimeout = null;
-    card.addEventListener('click', (e) => {
-      if (clickTimeout) {
-        clearTimeout(clickTimeout);
-        clickTimeout = null;
-        openProductPanel(p, true); // double click
-      } else {
-        clickTimeout = setTimeout(() => {
-          clickTimeout = null;
-          openProductPanel(p, false); // single click
-        }, 250);
-      }
-    });
-    card.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openProductPanel(p, false); }
-    });
-
     grid.appendChild(card);
   });
 }
@@ -1204,12 +613,11 @@ async function addToCart(productId, type, days = 1, btn) {
 
 async function _doAddToCart(productId, type, days) {
   try {
-    const res = await apiFetch('/api/cart', {
+    const res = await fetch('/api/cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId, type, qty: 1, days })
     });
-    if (!res) return;
     const json = await res.json();
     if(json.success) {
       const p = allProducts.find(x => x.id === productId);
@@ -1223,8 +631,7 @@ async function _doAddToCart(productId, type, days) {
 
 async function updateCartCount() {
   try {
-    const res = await apiFetch('/api/cart');
-    if (!res) return;
+    const res = await fetch('/api/cart');
     const json = await res.json();
     if(json.success) {
       const count = json.data.reduce((acc, item) => acc + item.qty, 0);
@@ -1298,11 +705,7 @@ async function loadCart() {
   // Show cart item skeletons
   SXLoading.showCartSkeletons(itemsDiv, 3);
   try {
-    const res = await apiFetch('/api/cart');
-    if(!res) {
-      document.getElementById('cart-items').innerHTML = `<p style="text-align:center;color:#888;margin-top:20px">Please log in to view cart.</p>`;
-      return;
-    }
+    const res = await fetch('/api/cart');
     const json = await res.json();
     if(json.success) {
       itemsDiv.innerHTML = '';
@@ -1322,7 +725,7 @@ async function loadCart() {
           div.className = 'cart-item';
           const priceStr = item.type === 'buy' ? `₹${item.product.price.toLocaleString()} x ${item.qty}` : `₹${item.product.rent.toLocaleString()}/day x ${item.days}d`;
           div.innerHTML = `
-            <div class="c-icon">${item.product.icon.startsWith('http') ? `<img src="${item.product.icon}" style="width:30px; height:30px; object-fit:cover; border-radius:50%; background-color:#fff;" />` : item.product.icon}</div>
+            <div class="c-icon">${item.product.icon}</div>
             <div class="c-details">
               <div class="c-name">${item.product.name}</div>
               <span class="c-type">${item.type.toUpperCase()}</span>
@@ -1334,22 +737,6 @@ async function loadCart() {
           `;
           itemsDiv.appendChild(div);
         });
-        if (json.securityDeposit) {
-          const sdDiv = document.createElement('div');
-          sdDiv.className = 'cart-item';
-          sdDiv.innerHTML = `
-            <div class="c-icon" style="display:flex;align-items:center;justify-content:center;font-size:20px;">🛡️</div>
-            <div class="c-details">
-              <div class="c-name">Security Deposit</div>
-              <span class="c-type" style="color:#aaa">REFUNDABLE</span>
-              <div class="c-actions">
-                <span class="c-price">₹${json.securityDeposit.toLocaleString()}</span>
-                <div style="min-width:28px; min-height:28px;"></div>
-              </div>
-            </div>
-          `;
-          itemsDiv.appendChild(sdDiv);
-        }
       });
       document.getElementById('cart-total-price').innerText = `₹${json.total.toLocaleString()}`;
     }
@@ -1360,14 +747,14 @@ async function removeFromCart(id, btn) {
   if(btn) {
     const stop = SXLoading.buttonStart(btn, 'dark');
     try {
-      await apiFetch(`/api/cart/${id}`, { method: 'DELETE' });
+      await fetch(`/api/cart/${id}`, { method: 'DELETE' });
       stop('✓');
       btn.style.color = '#2ed573';
       setTimeout(() => { updateCartCount(); loadCart(); }, 300);
     } catch(e) { stop(); console.error(e); }
   } else {
     try {
-      await apiFetch(`/api/cart/${id}`, { method: 'DELETE' });
+      await fetch(`/api/cart/${id}`, { method: 'DELETE' });
       updateCartCount(); loadCart();
     } catch(e) { console.error(e); }
   }
@@ -1375,47 +762,16 @@ async function removeFromCart(id, btn) {
 
 /* --- CHECKOUT FLOW --- */
 let currentUser = localStorage.getItem('sportx_user') || null;
-
-async function openProfileModal() {
-  document.getElementById('profile-modal').classList.add('active');
-  document.getElementById('prof-name').innerText = currentUser;
-  document.getElementById('prof-phone').innerText = localStorage.getItem('sportx_phone') || 'N/A';
-  
-  const ordersList = document.getElementById('prof-orders');
-  ordersList.innerHTML = '<div style="color:#aaa;text-align:center;">Loading orders...</div>';
-  
-  try {
-    const res = await apiFetch('/api/orders');
-    if (res.success && res.data.length > 0) {
-      ordersList.innerHTML = res.data.map(o => `
-        <div style="background:#1a1a1a; padding:10px; border-radius:6px; margin-bottom:8px; border:1px solid #333;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-            <span style="font-family:monospace; color:var(--gold); font-size:12px;">${o.id}</span>
-            <span style="color:#fff; font-weight:700; font-size:13px;">₹${o.total.toLocaleString()}</span>
-          </div>
-          <div style="font-size:11px; color:#888;">${new Date(o.createdAt).toLocaleDateString()} &middot; <span style="color:#2ed573">${o.status.toUpperCase()}</span></div>
-        </div>
-      `).join('');
-    } else {
-      ordersList.innerHTML = '<div style="color:#aaa;text-align:center;padding:10px;">No previous orders</div>';
-    }
-  } catch(e) {
-    ordersList.innerHTML = '<div style="color:#ff4757;text-align:center;padding:10px;">Failed to load orders</div>';
-  }
-}
-
-function logout() {
-  localStorage.removeItem('sportx_user');
-  localStorage.removeItem('sportx_phone');
-  localStorage.removeItem('sportx_token');
-  window.location.reload();
-}
-
 if (currentUser) {
   const loginBtn = document.querySelector('.btn-login');
   loginBtn.innerHTML = `👤 ${currentUser}`;
   loginBtn.onclick = () => {
-    openProfileModal();
+    if (confirm('Do you want to log out?')) {
+      localStorage.removeItem('sportx_user');
+      localStorage.removeItem('sportx_phone');
+      localStorage.removeItem('sportx_token');
+      window.location.reload();
+    }
   };
 }
 let checkoutData = { address: '', paymentMethod: '', phone: localStorage.getItem('sportx_phone') || '' };
@@ -1492,24 +848,21 @@ function confirmAddress() {
 function selectPayment(method) {
   checkoutData.paymentMethod = method;
 
-  // Show spinner on the clicked pay-option while we transition
+  // Show spinner on the clicked pay-option
   document.querySelectorAll('.pay-option').forEach(el => el.classList.add('sx-pay-loading'));
 
   document.getElementById('payment-modal').classList.remove('active');
 
-  if (method === 'UPI') {
-    // Show UPI flow — flash + final checkout happen after PIN entry
+  if(method === 'UPI') {
     document.getElementById('upi-modal').classList.add('active');
     document.getElementById('upi-step-1').style.display = 'block';
     document.getElementById('upi-step-2').style.display = 'none';
     document.getElementById('upi-step-3').style.display = 'none';
-    document.getElementById('upi-id').value  = '';
+    document.getElementById('upi-id').value = '';
     document.getElementById('upi-otp').value = '';
   } else {
-    // COD: read the current cart total NOW (before the flash hides the cart drawer)
-    // so showSuccessFlash can display the correct amount, not ₹0
-    const cartTotalText = document.getElementById('cart-total-price').innerText;
-    showSuccessFlash(cartTotalText, () => processFinalCheckout());
+    // COD: flash immediately then process
+    showSuccessFlash(() => processFinalCheckout());
   }
 }
 
@@ -1553,38 +906,29 @@ function processUpiPayment() {
   }, 500);
 }
 
-/**
- * Show the full-screen green success flash.
- *
- * @param {string}   amountText  The formatted total string to display (e.g. "₹1,299").
- *                               Pass this in from the caller so we never read a stale DOM value.
- * @param {Function} callback    Called after the flash fades out.
- */
-function showSuccessFlash(amountText, callback) {
-  const flash         = document.getElementById('sx-success-flash');
+function showSuccessFlash(callback) {
+  const flash = document.getElementById('sx-success-flash');
   const amountElement = document.getElementById('sx-flash-amount');
-
-  // Display the amount that was passed in — avoids reading ₹0 from an empty/resetting cart
-  if (amountElement) {
-    amountElement.innerText = amountText ? 'Amount Paid: ' + amountText : '';
+  const cartTotal = document.getElementById('cart-total-price');
+  if (amountElement && cartTotal) {
+    amountElement.innerText = "Amount Paid: " + cartTotal.innerText;
   }
-
-  // Reset the tick SVG animation by re-cloning the node
-  const svg   = flash.querySelector('svg');
+  
+  // Reset tick animation by re-cloning the SVG
+  const svg = flash.querySelector('svg');
   const clone = svg.cloneNode(true);
   svg.parentNode.replaceChild(clone, svg);
 
   flash.classList.add('sx-flash-in');
   flash.classList.remove('sx-flash-out');
 
-  // Keep the flash visible for 1 second, then fade out and fire the callback
   setTimeout(() => {
     flash.classList.add('sx-flash-out');
     flash.classList.remove('sx-flash-in');
     setTimeout(() => {
-      if (callback) callback();
-    }, 200); // wait for fade-out transition before proceeding
-  }, 1000);
+      if(callback) callback();
+    }, 200);
+  }, 1000); // visible for 1 second (~0.10s was too fast to see; using 1s for real feedback)
 }
 
 async function processFinalCheckout() {
@@ -1599,16 +943,11 @@ async function processFinalCheckout() {
   const stop = SXLoading.buttonStart(checkoutBtn, 'gold');
 
   try {
-    const res = await apiFetch('/api/orders', {
+    const res = await fetch('/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(checkoutData)
     });
-    if(!res) {
-      checkoutBtn.classList.remove('sx-btn-loading');
-      stop();
-      return;
-    }
     const json = await res.json();
 
     if(json.success) {
@@ -1676,12 +1015,8 @@ initStore();
 
 
 
-
-</script>
-
-<script>
 /* ═══════════════════════════════════════════════════════════
-   CANVAS FOOTBALL ANIMATION (frame-capped at 60fps)
+   CANVAS
 ═══════════════════════════════════════════════════════════ */
 const cv  = document.getElementById("pitch");
 const ctx2 = cv.getContext("2d");

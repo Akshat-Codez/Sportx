@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Page Missing | SportX</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #ffffff;
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: #222222;
+    }
+
+    /* Container fade in and slide up */
+    .container {
+      text-align: center;
+      padding: 20px;
+      animation: container-fade 0.7s cubic-bezier(0.43, 0.13, 0.23, 0.96) forwards;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    @keyframes container-fade {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Ghost Section */
+    .ghost-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .number {
+      font-size: 120px;
+      font-weight: 700;
+      opacity: 0;
+      user-select: none;
+    }
+
+    .num-left {
+      animation: slide-in-left 0.8s cubic-bezier(0.43, 0.13, 0.23, 0.96) 0.1s forwards;
+      transform: translate(-40px, 15px) rotate(-5deg);
+    }
+
+    .num-right {
+      animation: slide-in-right 0.8s cubic-bezier(0.43, 0.13, 0.23, 0.96) 0.1s forwards;
+      transform: translate(40px, 15px) rotate(5deg);
+    }
+
+    @keyframes slide-in-left {
+      to { opacity: 0.7; transform: translate(0, 0) rotate(0deg); }
+    }
+    @keyframes slide-in-right {
+      to { opacity: 0.7; transform: translate(0, 0) rotate(0deg); }
+    }
+
+    .ghost {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      user-select: none;
+      opacity: 0;
+      transform: scale(0.8) translateY(15px) rotate(-5deg);
+      animation: 
+        ghost-enter 0.6s cubic-bezier(0.43, 0.13, 0.23, 0.96) 0.2s forwards,
+        ghost-float 2s ease-in-out 0.8s infinite alternate;
+    }
+
+    .ghost:hover {
+      animation: 
+        ghost-hover 0.3s ease-out forwards,
+        ghost-hover-wiggle 2s linear infinite alternate;
+    }
+
+    @keyframes ghost-enter {
+      to { opacity: 1; transform: scale(1) translateY(0) rotate(0deg); }
+    }
+
+    @keyframes ghost-float {
+      0% { transform: translateY(-5px); }
+      100% { transform: translateY(5px); }
+    }
+
+    @keyframes ghost-hover {
+      to { transform: scale(1.1) translateY(-10px); }
+    }
+
+    @keyframes ghost-hover-wiggle {
+      0% { transform: scale(1.1) translateY(-10px) rotate(0deg); }
+      25% { transform: scale(1.1) translateY(-10px) rotate(-5deg); }
+      75% { transform: scale(1.1) translateY(-10px) rotate(5deg); }
+      100% { transform: scale(1.1) translateY(-10px) rotate(0deg); }
+    }
+
+    /* Text */
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 24px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fade-up 0.6s cubic-bezier(0.43, 0.13, 0.23, 0.96) 0.3s forwards;
+    }
+
+    p {
+      font-size: 1.25rem;
+      margin-bottom: 48px;
+      opacity: 0;
+      color: #666;
+      transform: translateY(20px);
+      animation: fade-up 0.6s cubic-bezier(0.43, 0.13, 0.23, 0.96) 0.4s forwards;
+    }
+
+    @keyframes fade-up {
+      to { opacity: 0.7; transform: translateY(0); }
+    }
+
+    /* Button */
+    .btn-wrapper {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fade-up 0.6s cubic-bezier(0.43, 0.13, 0.23, 0.96) 0.5s forwards;
+      display: inline-block;
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: #222222;
+      color: #ffffff;
+      padding: 12px 32px;
+      border-radius: 9999px;
+      font-size: 1.125rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.43, 0.13, 0.23, 0.96);
+    }
+
+    .btn:hover {
+      background-color: #000000;
+      transform: scale(1.05);
+    }
+
+    .link-wrapper {
+      margin-top: 48px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fade-up 0.6s cubic-bezier(0.43, 0.13, 0.23, 0.96) 0.6s forwards;
+    }
+
+    .link-wrapper a {
+      color: #222222;
+      opacity: 0.5;
+      text-decoration: underline;
+      transition: opacity 0.2s;
+    }
+
+    .link-wrapper a:hover {
+      opacity: 0.7;
+    }
+
+    @media (max-width: 768px) {
+      .number { font-size: 80px; }
+      .ghost { width: 80px; height: 80px; }
+      h1 { font-size: 1.875rem; }
+      p { font-size: 1.125rem; }
+      .ghost-wrapper { gap: 16px; margin-bottom: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="ghost-wrapper">
+      <span class="number num-left">4</span>
+      <img src="https://xubohuah.github.io/xubohua.top/Group.png" alt="Ghost" class="ghost" draggable="false">
+      <span class="number num-right">4</span>
+    </div>
+    
+    <h1>Boo! Page missing!</h1>
+    <p>Whoops! This page must be a ghost - it's not here!</p>
+    
+    <div class="btn-wrapper">
+      <a href="/" class="btn">Find shelter</a>
+    </div>
+
+    <div class="link-wrapper">
+      <a href="/">Return to Home</a>
+    </div>
+  </div>
+</body>
+</html>

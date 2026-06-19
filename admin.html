@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="loading.css">
 </head>
 <body>
 
@@ -14,10 +15,10 @@
 
 <div class="sidebar">
   <div class="logo">SPORT<span>X</span> <span class="logo-badge">ADMIN</span></div>
-  <a class="nav-item active" id="nav-dash"      onclick="switchTab('dash')">      <i>📊</i> Overview</a>
-  <a class="nav-item"        id="nav-orders"    onclick="switchTab('orders')">    <i>📦</i> Orders</a>
-  <a class="nav-item"        id="nav-inventory" onclick="switchTab('inventory')"> <i>🏸</i> Inventory</a>
-  <a class="nav-item"        id="nav-users"     style="margin-top:auto;cursor:not-allowed;opacity:.4"><i>👤</i> Users</a>
+  <a class="nav-item active" id="nav-dash" onclick="switchTab('dash')"><i>📊</i> Overview</a>
+  <a class="nav-item" id="nav-orders" onclick="switchTab('orders')"><i>📦</i> Orders</a>
+  <a class="nav-item" id="nav-inventory" onclick="switchTab('inventory')"><i>🏸</i> Inventory</a>
+  <a class="nav-item" id="nav-users" style="margin-top:auto" onclick="switchTab('users')"><i>👤</i> Users</a>
 </div>
 
 <div class="main">
@@ -29,27 +30,26 @@
     </div>
   </div>
 
-  <!-- DASH VIEW -->
   <div id="view-dash">
     <div class="stats-grid">
       <div class="stat-card gold">
         <div class="stat-icon">₹</div>
-        <div class="stat-value" id="s-rev">—</div>
+        <div class="stat-value" id="s-rev">0</div>
         <div class="stat-label">Total Revenue</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon">📦</div>
-        <div class="stat-value" id="s-ord">—</div>
+        <div class="stat-value" id="s-ord">0</div>
         <div class="stat-label">Total Orders</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon">🏸</div>
-        <div class="stat-value" id="s-prod">—</div>
+        <div class="stat-value" id="s-prod">0</div>
         <div class="stat-label">Total Products</div>
       </div>
       <div class="stat-card" style="border-color: rgba(255,71,87,0.2)">
         <div class="stat-icon" style="color:var(--danger)">⚠️</div>
-        <div class="stat-value" id="s-low">—</div>
+        <div class="stat-value" id="s-low">0</div>
         <div class="stat-label">Low Stock Alerts</div>
       </div>
     </div>
@@ -58,231 +58,239 @@
     <div class="table-container">
       <table>
         <thead>
-          <tr><th>Order ID</th><th>Date</th><th>Total Value</th><th>Status</th></tr>
+          <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Total Value</th>
+            <th>Status</th>
+          </tr>
         </thead>
         <tbody id="dash-orders">
-          <tr><td colspan="4" class="empty-state">Loading...</td></tr>
+          <tr><td colspan="4" class="empty-state">Loading order data...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- ORDERS VIEW -->
-  <div id="view-orders" style="display:none;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
-      <div class="section-title" style="margin-bottom:0;">ALL ORDERS</div>
-      <input id="order-search" type="text" placeholder="Search order ID or phone…"
-        style="background:#1a1a1a;border:1px solid #333;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;outline:none;width:260px;"
-        oninput="filterOrders(this.value)" />
-    </div>
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr><th>Order ID</th><th>Date</th><th>Phone</th><th>Total</th><th>Payment</th><th>Status</th></tr>
-        </thead>
-        <tbody id="all-orders-tbody">
-          <tr><td colspan="6" class="empty-state">Loading...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- INVENTORY VIEW -->
   <div id="view-inventory" style="display: none;">
     <div class="section-title">INVENTORY MANAGEMENT</div>
     <div class="table-container">
       <table>
         <thead>
-          <tr><th>ID</th><th>Product Name</th><th>Price</th><th>Current Stock</th><th>Action</th></tr>
+          <tr>
+            <th>ID</th>
+            <th>Product Name</th>
+            <th>Price</th>
+            <th>Current Stock</th>
+            <th>Action</th>
+          </tr>
         </thead>
         <tbody id="dash-inventory">
-          <tr><td colspan="5" class="empty-state">Loading...</td></tr>
+          <tr><td colspan="5" class="empty-state">Loading products...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
-</div>
+
+  <div id="view-orders" style="display: none;">
+    <div class="section-title">ALL ORDERS</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Phone</th>
+            <th>Total Value</th>
+            <th>Payment</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="dash-orders-full">
+          <tr><td colspan="6" class="empty-state">Loading orders...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="view-users" style="display: none;">
+    <div class="section-title">REGISTERED USERS</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Verified</th>
+            <th>Joined</th>
+          </tr>
+        </thead>
+        <tbody id="dash-users">
+          <tr><td colspan="5" class="empty-state">Loading users...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
 <!-- Order Details Modal -->
 <div id="order-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3000; align-items:center; justify-content:center;">
-  <div style="background:#111; padding:30px; border-radius:12px; width:90%; max-width:440px; border:1px solid #2a2a2a; position:relative;">
+  <div style="background:#111; padding:30px; border-radius:12px; width:90%; max-width:420px; border:1px solid #2a2a2a; position:relative;">
     <button style="position:absolute;top:15px;right:20px;color:#888;background:none;border:none;font-size:24px;cursor:pointer;" onclick="document.getElementById('order-modal').style.display='none'">&times;</button>
-    <h3 style="font-family:'Barlow Condensed',sans-serif; font-size:28px; margin-bottom:20px; color:var(--gold);">ORDER DETAILS</h3>
-    <div id="order-details-content" style="font-size:14px; color:#ccc; line-height:1.9;"></div>
+    <h3 style="font-family:'Barlow Condensed',sans-serif; font-size:28px; margin-bottom:16px; color:var(--gold);">ORDER DETAILS</h3>
+    <div id="order-details-content" style="font-size:14px; color:#ccc; line-height:1.6;"></div>
   </div>
 </div>
 
-<!-- Toast -->
-<div id="admin-toasts" style="position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;"></div>
+</div>
 
+<script src="loading.js"></script>
 <script>
 let allOrders = [];
 
-/* ── TAB SWITCHING ── */
+// Tab Switching
 function switchTab(tab) {
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  const el = document.getElementById('nav-' + tab);
-  if (el) el.classList.add('active');
+  document.getElementById('nav-' + tab).classList.add('active');
+  
+  // Hide all views
+  ['dash','inventory','orders','users'].forEach(v => {
+    const el = document.getElementById('view-' + v);
+    if (el) el.style.display = 'none';
+  });
 
-  document.getElementById('view-dash').style.display      = tab === 'dash'      ? 'block' : 'none';
-  document.getElementById('view-orders').style.display    = tab === 'orders'    ? 'block' : 'none';
-  document.getElementById('view-inventory').style.display = tab === 'inventory' ? 'block' : 'none';
-
-  const titles = { dash:'Dashboard Overview', orders:'All Orders', inventory:'Inventory Management' };
-  document.getElementById('page-title').innerText = titles[tab] || '';
-
-  if (tab === 'orders')    fetchAllOrders();
-  if (tab === 'inventory') fetchInventory();
+  if(tab === 'dash') {
+    document.getElementById('view-dash').style.display = 'block';
+    document.getElementById('page-title').innerText = 'Dashboard Overview';
+  } else if(tab === 'inventory') {
+    document.getElementById('view-inventory').style.display = 'block';
+    document.getElementById('page-title').innerText = 'Inventory Management';
+    fetchInventory();
+  } else if(tab === 'orders') {
+    document.getElementById('view-orders').style.display = 'block';
+    document.getElementById('page-title').innerText = 'All Orders';
+    fetchAllOrders();
+  } else if(tab === 'users') {
+    document.getElementById('view-users').style.display = 'block';
+    document.getElementById('page-title').innerText = 'Registered Users';
+    fetchUsers();
+  }
 }
 
-/* ── TOAST ── */
-function adminToast(msg, ok = true) {
-  const c = document.getElementById('admin-toasts');
-  const t = document.createElement('div');
-  t.style.cssText = `background:#111;border-left:4px solid ${ok?'var(--success)':'var(--danger)'};color:#fff;padding:14px 22px;border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.5);font-size:14px;font-weight:500;`;
-  t.innerText = msg;
-  c.appendChild(t);
-  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),320); }, 2800);
-}
-
-/* ── STATS ── */
 async function fetchStats() {
+  // Show stat card skeletons on first load
+  const grid = document.querySelector('.stats-grid');
+  if(grid && grid.children.length === 0) {
+    SXLoading.showStatSkeletons(grid, 4);
+  }
   try {
     const res = await fetch('/api/stats');
     const json = await res.json();
-    if (json.success) {
-      document.getElementById('s-rev').innerText  = '₹' + (json.data.totalRevenue || 0).toLocaleString('en-IN');
-      document.getElementById('s-ord').innerText  = json.data.totalOrders;
+    if(json.success) {
+      // Restore real stat cards if we replaced them
+      if(grid && grid.querySelector('.sx-stat-skeleton')) {
+        grid.innerHTML = `
+          <div class="stat-card gold">
+            <div class="stat-icon">₹</div>
+            <div class="stat-value" id="s-rev">0</div>
+            <div class="stat-label">Total Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-value" id="s-ord">0</div>
+            <div class="stat-label">Total Orders</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏸</div>
+            <div class="stat-value" id="s-prod">0</div>
+            <div class="stat-label">Total Products</div>
+          </div>
+          <div class="stat-card" style="border-color: rgba(255,71,87,0.2)">
+            <div class="stat-icon" style="color:var(--danger)">⚠️</div>
+            <div class="stat-value" id="s-low">0</div>
+            <div class="stat-label">Low Stock Alerts</div>
+          </div>`;
+        grid.classList.add('sx-appear-stagger');
+      }
+      document.getElementById('s-rev').innerText = '₹' + (json.data.totalRevenue || 0).toLocaleString();
+      document.getElementById('s-ord').innerText = json.data.totalOrders;
       document.getElementById('s-prod').innerText = json.data.totalProducts;
-      document.getElementById('s-low').innerText  = json.data.lowStock.length;
+      document.getElementById('s-low').innerText = json.data.lowStock.length;
     }
   } catch(e) { console.error('Stats error:', e); }
 }
 
-/* ── RECENT ORDERS (dash) ── */
 async function fetchOrders() {
+  const tbody = document.getElementById('dash-orders');
+  SXLoading.showTableSkeletons(tbody, 5, 4, ['15%','25%','20%','15%']);
   try {
     const res = await fetch('/api/orders');
     const json = await res.json();
-    const tbody = document.getElementById('dash-orders');
-    tbody.innerHTML = '';
-    if (json.success && json.data.length > 0) {
+    if(json.success && json.data.length > 0) {
       allOrders = json.data;
-      json.data.slice(0, 8).forEach(o => {
-        const tr = document.createElement('tr');
-        tr.style.cursor = 'pointer';
-        tr.onclick = () => showOrderDetails(o.id);
-        const date = new Date(o.createdAt).toLocaleString(undefined, {
-          year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'
+      SXLoading.reveal(tbody, () => {
+        tbody.innerHTML = '';
+        json.data.slice(0, 8).forEach(o => {
+          const tr = document.createElement('tr');
+          tr.style.cursor = 'pointer';
+          tr.onclick = () => showOrderDetails(o.id);
+          const date = new Date(o.createdAt).toLocaleString(undefined, {
+            year: 'numeric', month: 'short', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+          });
+          tr.innerHTML = `
+            <td><span style="font-family:monospace; color:var(--gold)">${o.id}</span></td>
+            <td>${date}</td>
+            <td style="font-weight:700; color:#fff">₹${o.total.toLocaleString()}</td>
+            <td><span class="badge success">${o.status.toUpperCase()}</span></td>
+          `;
+          tbody.appendChild(tr);
         });
-        tr.innerHTML = `
-          <td><span style="font-family:monospace;color:var(--gold)">${o.id}</span></td>
-          <td>${date}</td>
-          <td style="font-weight:700;color:#fff">₹${o.total.toLocaleString('en-IN')}</td>
-          <td><span class="badge success">${o.status.toUpperCase()}</span></td>`;
-        tbody.appendChild(tr);
       });
     } else {
-      tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No orders yet.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No recent orders.</td></tr>';
     }
   } catch(e) { console.error('Orders error:', e); }
 }
 
-/* ── ALL ORDERS (orders tab) ── */
-async function fetchAllOrders() {
-  try {
-    const res = await fetch('/api/orders');
-    const json = await res.json();
-    allOrders = json.data || [];
-    renderOrdersTable(allOrders);
-  } catch(e) { console.error('All orders error:', e); }
-}
-
-function renderOrdersTable(list) {
-  const tbody = document.getElementById('all-orders-tbody');
-  tbody.innerHTML = '';
-  if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No orders found.</td></tr>';
-    return;
-  }
-  list.forEach(o => {
-    const tr = document.createElement('tr');
-    tr.style.cursor = 'pointer';
-    tr.onclick = () => showOrderDetails(o.id);
-    const date = new Date(o.createdAt).toLocaleString(undefined, {
-      year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'
-    });
-    tr.innerHTML = `
-      <td><span style="font-family:monospace;color:var(--gold)">${o.id}</span></td>
-      <td>${date}</td>
-      <td style="color:#aaa">${o.phone || '—'}</td>
-      <td style="font-weight:700;color:#fff">₹${o.total.toLocaleString('en-IN')}</td>
-      <td><span style="font-size:12px;color:#aaa">${o.paymentMethod || '—'}</span></td>
-      <td><span class="badge success">${o.status.toUpperCase()}</span></td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-function filterOrders(q) {
-  q = q.toLowerCase();
-  const filtered = allOrders.filter(o =>
-    o.id.toLowerCase().includes(q) || (o.phone || '').includes(q)
-  );
-  renderOrdersTable(filtered);
-}
-
-/* ── ORDER DETAILS MODAL ── */
 function showOrderDetails(id) {
   const o = allOrders.find(x => x.id === id);
-  if (!o) return;
-  const date = new Date(o.createdAt).toLocaleString(undefined, {
-    year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'
-  });
-  document.getElementById('order-details-content').innerHTML = `
-    <p><strong style="color:#fff">Order ID:</strong> <span style="font-family:monospace">${o.id}</span></p>
-    <p><strong style="color:#fff">Date:</strong> ${date}</p>
-    <p><strong style="color:#fff">Total:</strong> <span style="color:var(--gold);font-weight:700">₹${o.total.toLocaleString('en-IN')}</span></p>
-    <p><strong style="color:#fff">Phone:</strong> ${o.phone || 'N/A'}</p>
-    <p><strong style="color:#fff">Address:</strong> ${o.address || 'N/A'}</p>
-    <p><strong style="color:#fff">Payment:</strong> ${o.paymentMethod || 'N/A'}</p>
-    <p><strong style="color:#fff">Status:</strong> <span class="badge success">${o.status.toUpperCase()}</span></p>`;
+  if(!o) return;
+  const content = document.getElementById('order-details-content');
+  content.innerHTML = `
+    <p><strong>Order ID:</strong> ${o.id}</p>
+    <p><strong>Total:</strong> ₹${o.total.toLocaleString()}</p>
+    <p><strong>Phone:</strong> ${o.phone || 'N/A'}</p>
+    <p><strong>Address:</strong> ${o.address || 'N/A'}</p>
+    <p><strong>Payment Mode:</strong> ${o.paymentMethod || 'N/A'}</p>
+  `;
   document.getElementById('order-modal').style.display = 'flex';
 }
 
-/* close modal on Escape */
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.getElementById('order-modal').style.display = 'none';
-});
-
-/* ── INVENTORY ── */
 async function fetchInventory() {
+  const tbody = document.getElementById('dash-inventory');
+  SXLoading.showTableSkeletons(tbody, 6, 5, ['8%','30%','15%','18%','12%']);
   try {
     const res = await fetch('/api/products');
     const json = await res.json();
-    const tbody = document.getElementById('dash-inventory');
-    tbody.innerHTML = '';
-    if (json.success && json.data.length > 0) {
-      json.data.forEach(p => {
-        const low = p.stock < 6;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td style="color:#666">${p.id}</td>
-          <td><span style="font-weight:600">${p.icon} ${p.name}</span></td>
-          <td>₹${p.price.toLocaleString('en-IN')}</td>
-          <td>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <input type="number" id="stock-input-${p.id}" value="${p.stock}" min="0"
-                style="width:80px;padding:7px 10px;background:rgba(0,0,0,0.4);border:1px solid ${low?'var(--danger)':'#333'};color:#fff;border-radius:6px;font-size:14px;" />
-              ${low ? `<span style="font-size:11px;color:var(--danger);font-weight:600;">LOW</span>` : ''}
-            </div>
-          </td>
-          <td>
-            <button onclick="updateStock(${p.id})"
-              style="padding:7px 16px;background:var(--gold);border:none;border-radius:6px;color:#000;font-weight:700;cursor:pointer;font-size:13px;">
-              Update
-            </button>
-          </td>`;
-        tbody.appendChild(tr);
+    if(json.success && json.data.length > 0) {
+      SXLoading.reveal(tbody, () => {
+        tbody.innerHTML = '';
+        json.data.forEach(p => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${p.id}</td>
+            <td><span style="font-weight:600">${p.icon} ${p.name}</span></td>
+            <td>₹${p.price.toLocaleString()}</td>
+            <td>
+              <input type="number" id="stock-input-${p.id}" value="${p.stock}" style="width: 80px; padding: 6px; background: rgba(0,0,0,0.4); border: 1px solid #333; color: #fff; border-radius: 4px;" />
+            </td>
+            <td>
+              <button id="update-btn-${p.id}" onclick="updateStock(${p.id})" style="padding: 6px 12px; background: var(--gold); border: none; border-radius: 4px; color: #000; font-weight: 600; cursor: pointer; min-width: 80px; position: relative;">Update</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
       });
     } else {
       tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No products found.</td></tr>';
@@ -291,40 +299,108 @@ async function fetchInventory() {
 }
 
 async function updateStock(id) {
-  const input = document.getElementById(`stock-input-${id}`);
-  const stock = parseInt(input.value, 10);
-  if (isNaN(stock) || stock < 0) {
-    adminToast('Stock must be a non-negative number', false);
-    return;
-  }
-  try {
+  const stock = document.getElementById(`stock-input-${id}`).value;
+  const btn = document.getElementById(`update-btn-${id}`);
+  await SXLoading.buttonAction(btn, async () => {
     const res = await fetch(`/api/products/${id}/stock`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stock })
+      body: JSON.stringify({ stock: parseInt(stock, 10) })
     });
     const json = await res.json();
-    if (json.success) {
-      adminToast('Stock updated successfully');
+    if(json.success) {
+      showAdminToast('Stock updated!');
       fetchStats();
-      fetchInventory();
     } else {
-      adminToast('Failed to update stock', false);
+      showAdminToast('Failed to update stock', true);
     }
-  } catch(e) { adminToast('Network error', false); }
+  }, 'gold');
 }
 
-/* ── INIT ── */
+function showAdminToast(msg, isError = false) {
+  let t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;
+    background:#111;border-left:4px solid ${isError ? '#ff4757' : 'var(--gold)'};
+    color:#fff;padding:14px 22px;border-radius:4px;font-size:14px;font-weight:500;
+    box-shadow:0 4px 12px rgba(0,0,0,0.5);animation:sx-fade-in 0.3s ease;`;
+  t.innerText = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = 0; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 2800);
+}
+
+async function fetchAllOrders() {
+  const tbody = document.getElementById('dash-orders-full');
+  SXLoading.showTableSkeletons(tbody, 8, 6, ['18%','18%','15%','14%','12%','10%']);
+  try {
+    const res = await fetch('/api/orders');
+    const json = await res.json();
+    if(json.success && json.data.length > 0) {
+      allOrders = json.data;
+      SXLoading.reveal(tbody, () => {
+        tbody.innerHTML = '';
+        json.data.forEach(o => {
+          const tr = document.createElement('tr');
+          tr.style.cursor = 'pointer';
+          tr.onclick = () => showOrderDetails(o.id);
+          const date = new Date(o.createdAt).toLocaleString(undefined, {
+            year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'
+          });
+          tr.innerHTML = `
+            <td><span style="font-family:monospace; color:var(--gold)">${o.id}</span></td>
+            <td>${date}</td>
+            <td>${o.phone || '—'}</td>
+            <td style="font-weight:700; color:#fff">₹${o.total.toLocaleString()}</td>
+            <td>${o.paymentMethod || 'COD'}</td>
+            <td><span class="badge success">${o.status.toUpperCase()}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    } else {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No orders yet.</td></tr>';
+    }
+  } catch(e) { console.error('Orders error:', e); }
+}
+
+async function fetchUsers() {
+  const tbody = document.getElementById('dash-users');
+  SXLoading.showTableSkeletons(tbody, 5, 5, ['20%','20%','20%','10%','20%']);
+  try {
+    const res = await fetch('/api/admin/users');
+    const json = await res.json();
+    if(json.success && json.data.length > 0) {
+      SXLoading.reveal(tbody, () => {
+        tbody.innerHTML = '';
+        json.data.forEach(u => {
+          const tr = document.createElement('tr');
+          const joined = new Date(u.createdAt).toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+          tr.innerHTML = `
+            <td><span style="font-family:monospace; color:#888">${u.id}</span></td>
+            <td style="font-weight:600">${u.name || '—'}</td>
+            <td>${u.phone}</td>
+            <td><span class="badge ${u.verified ? 'success' : 'danger'}">${u.verified ? 'VERIFIED' : 'PENDING'}</span></td>
+            <td>${joined}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    } else {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No registered users yet.</td></tr>';
+    }
+  } catch(e) {
+    document.getElementById('dash-users').innerHTML = '<tr><td colspan="5" class="empty-state">Could not load users.</td></tr>';
+  }
+}
+
+// Initial fetch
 fetchStats();
 fetchOrders();
 
-setInterval(() => {
-  fetchStats();
-  const dashVisible = document.getElementById('view-dash').style.display !== 'none';
-  const ordersVisible = document.getElementById('view-orders').style.display !== 'none';
-  if (dashVisible) fetchOrders();
-  if (ordersVisible) fetchAllOrders();
-}, 15000);
+// Refresh data every 10 seconds
+setInterval(() => { 
+  fetchStats(); 
+  if(document.getElementById('view-dash').style.display !== 'none') fetchOrders(); 
+}, 10000);
 </script>
 </body>
 </html>
