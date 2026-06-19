@@ -22,11 +22,9 @@ function isPhone(p) { return /^[6-9]\d{9}$/.test(String(p).replace(/\s|\+91/g,''
 function normalizePhone(p) { return String(p).replace(/\s|\+91/g,''); }
 
 function pwStrength(p) {
-  if (!p || p.length < 8)      return 'Password must be at least 8 characters';
-  if (!/[A-Z]/.test(p))         return 'Must contain an uppercase letter';
-  if (!/[a-z]/.test(p))         return 'Must contain a lowercase letter';
-  if (!/\d/.test(p))            return 'Must contain a number';
-  if (!/[^A-Za-z0-9]/.test(p)) return 'Must contain a special character';
+  if (!p || p.length < 6 || !/[A-Z]/.test(p) || !/[a-z]/.test(p) || !/\d/.test(p) || !/[^A-Za-z0-9]/.test(p)) {
+    return 'A password should contain special character, digit, Capital Letter, Small Letter, min 6 characters';
+  }
   return null;
 }
 

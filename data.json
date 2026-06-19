@@ -8,6 +8,15 @@
       "address": "",
       "verified": true,
       "createdAt": "2026-06-14T07:13:01.016Z"
+    },
+    {
+      "id": "usr_1781891764606",
+      "phone": "9087654567",
+      "passwordHash": "33cbccf7295b3bfc6fd45b3557a73683:84489191f565004e15c32b045fa471d2463c156e5a9e5d02150dc47203de26d8127a50db6913d66d38ee037c5a6a55b87ffa630fd6b18baca215203fda0d0344",
+      "name": "Vivek",
+      "address": "",
+      "verified": true,
+      "createdAt": "2026-06-19T17:56:04.608Z"
     }
   ],
   "cart": [
@@ -15,6 +24,14 @@
       "id": 3,
       "userId": "usr_1780379186782",
       "productId": 2,
+      "type": "buy",
+      "qty": 1,
+      "days": 1
+    },
+    {
+      "id": 6,
+      "userId": "usr_1781891764606",
+      "productId": 3,
       "type": "buy",
       "qty": 1,
       "days": 1
@@ -100,7 +117,7 @@
       ]
     }
   ],
-  "cartIdx": 6,
+  "cartIdx": 7,
   "products": [
     {
       "id": 1,
