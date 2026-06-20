@@ -14,7 +14,10 @@ const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
+// Static files are served by Vercel CDN (not Express) in production
+if (process.env.NODE_ENV !== 'production') {
+  app.use(express.static(__dirname));
+}
 
 // Initialize data store
 init();
@@ -46,7 +49,10 @@ app.get('/api/stats', (_req, res) => {
 
 // 404 Handler
 app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, '404.html'));
+  if (process.env.NODE_ENV !== 'production') {
+    return res.status(404).sendFile(path.join(__dirname, '404.html'));
+  }
+  res.status(404).json({ success: false, message: 'Not found' });
 });
 
 if (process.env.NODE_ENV !== 'production') {

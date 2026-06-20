@@ -27,23 +27,23 @@ const store = {
 };
 
 function loadData() {
-  if (fs.existsSync(dataFile)) {
-    try {
+  try {
+    if (fs.existsSync(dataFile)) {
       const data = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
       store.users = data.users || [];
       store.cart = data.cart || [];
       store.orders = data.orders || [];
       store.cartIdx = data.cartIdx || 1;
       store.products = data.products || store.products;
-    } catch (e) {
-      console.error('Failed to load data.json', e);
     }
-  } else {
-    saveData();
+  } catch (e) {
+    console.error('Failed to load data.json (may be normal on Vercel):', e.message);
   }
 }
 
 function saveData() {
+  // Vercel serverless has a read-only filesystem; skip writes in production
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') return;
   try {
     const data = { 
       users: store.users, 
@@ -54,7 +54,7 @@ function saveData() {
     };
     fs.writeFileSync(dataFile, JSON.stringify(data, null, 2), 'utf8');
   } catch (e) {
-    console.error('Failed to save data.json', e);
+    console.error('Failed to save data.json:', e.message);
   }
 }
 
