@@ -13,7 +13,8 @@
           "*.json",
           "loading.js",
           "data.json",
-          "logo.jpg"
+          "logo.jpg",
+          "js/*.js"
         ]
       }
     }

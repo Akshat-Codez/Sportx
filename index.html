@@ -1385,9 +1385,14 @@ async function openProfileModal() {
   ordersList.innerHTML = '<div style="color:#aaa;text-align:center;">Loading orders...</div>';
   
   try {
-    const res = await apiFetch('/api/orders');
-    if (res.success && res.data.length > 0) {
-      ordersList.innerHTML = res.data.map(o => `
+    const res = await apiFetch('/api/orders/my');
+    if (!res) {
+      ordersList.innerHTML = '<div style="color:#aaa;text-align:center;padding:10px;">Please log in to view orders.</div>';
+      return;
+    }
+    const json = await res.json();
+    if (json.success && json.data.length > 0) {
+      ordersList.innerHTML = json.data.map(o => `
         <div style="background:#1a1a1a; padding:10px; border-radius:6px; margin-bottom:8px; border:1px solid #333;">
           <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
             <span style="font-family:monospace; color:var(--gold); font-size:12px;">${o.id}</span>
@@ -1408,6 +1413,7 @@ function logout() {
   localStorage.removeItem('sportx_user');
   localStorage.removeItem('sportx_phone');
   localStorage.removeItem('sportx_token');
+  localStorage.removeItem('sportx_userId');
   window.location.reload();
 }
 

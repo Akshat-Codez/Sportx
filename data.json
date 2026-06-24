@@ -17,6 +17,24 @@
       "address": "",
       "verified": true,
       "createdAt": "2026-06-19T17:56:04.608Z"
+    },
+    {
+      "id": "usr_1782136012776",
+      "phone": "8870996588",
+      "passwordHash": "80ecb323c224191f5cafe8033fc45735:fc66b44665731ce045de1bbc08644d216ed2ead332c2cd3ea760584531edf7448fc231757aacc26a8d4f72b974b37e9b7e61e5e78a8776713c02b11a10bcff16",
+      "name": "ALLEN",
+      "address": "",
+      "verified": true,
+      "createdAt": "2026-06-22T13:46:52.804Z"
+    },
+    {
+      "id": "usr_1782219113045",
+      "phone": "8870996946",
+      "passwordHash": "f01067eec3ed79048188fee43f81c882:9c823582f05fff44e990cf2b3d19125291f26f61b24917ea2cd454ab1aa8840d370ab3f08d669a2e22ed9f798aea16587c8687ece7e99696da1c9287f8a6f8d8",
+      "name": "Akshat Shukla",
+      "address": "",
+      "verified": true,
+      "createdAt": "2026-06-23T12:51:53.046Z"
     }
   ],
   "cart": [
@@ -31,12 +49,79 @@
   ],
   "orders": [
     {
+      "id": "SX-1782318968144",
+      "userId": "usr_1782219113045",
+      "total": 2441,
+      "securityDeposit": 499,
+      "createdAt": "2026-06-24T16:36:08.173Z",
+      "status": "confirmed",
+      "address": "Akshat Shukla, bmsce, PIN: 209861",
+      "paymentMethod": "COD",
+      "phone": "8870996946",
+      "items": [
+        {
+          "productId": 2,
+          "name": "Yonex Nanoflare",
+          "type": "buy",
+          "qty": 1,
+          "price": 1599
+        },
+        {
+          "productId": 7,
+          "name": "NBA Spalding",
+          "type": "rent",
+          "qty": 1,
+          "price": 343
+        }
+      ]
+    },
+    {
+      "id": "SX-1782219142350",
+      "userId": "usr_1782219113045",
+      "total": 842,
+      "securityDeposit": 499,
+      "createdAt": "2026-06-23T12:52:22.350Z",
+      "status": "delivered",
+      "address": "Akshat Shukla, bmsce, PIN: 209861",
+      "paymentMethod": "COD",
+      "phone": "8870996946",
+      "items": [
+        {
+          "productId": 7,
+          "name": "NBA Spalding",
+          "type": "rent",
+          "qty": 1,
+          "price": 343
+        }
+      ]
+    },
+    {
+      "id": "SX-1782136121186",
+      "userId": "usr_1782136012776",
+      "total": 699,
+      "securityDeposit": 0,
+      "createdAt": "2026-06-22T13:48:41.186Z",
+      "status": "delivered",
+      "address": "jAMES, cHURCH sTREET,bANGLORE, PIN: 657689",
+      "paymentMethod": "COD",
+      "phone": "8870996588",
+      "items": [
+        {
+          "productId": 4,
+          "name": "Kookaburra Helmet",
+          "type": "buy",
+          "qty": 1,
+          "price": 699
+        }
+      ]
+    },
+    {
       "id": "SX-1782064596891",
       "userId": "usr_1781891764606",
       "total": 4349,
       "securityDeposit": 499,
       "createdAt": "2026-06-21T17:56:36.891Z",
-      "status": "confirmed",
+      "status": "delivered",
       "address": "jAMES, cHURCH sTREET,bANGLORE, PIN: 657689",
       "paymentMethod": "COD",
       "phone": "9087654567",
@@ -56,7 +141,7 @@
       "total": 3999,
       "securityDeposit": 0,
       "createdAt": "2026-06-21T17:55:04.573Z",
-      "status": "confirmed",
+      "status": "delivered",
       "address": "jAMES, cHURCH sTREET,bANGLORE, PIN: 657689",
       "paymentMethod": "COD",
       "phone": "9087654567",
@@ -147,9 +232,130 @@
           "price": 1299
         }
       ]
+    },
+    {
+      "id": "SX-1782305400000",
+      "userId": "usr_1781421181016",
+      "total": 5599,
+      "securityDeposit": 0,
+      "createdAt": "2026-06-24T12:50:00.000Z",
+      "status": "delivered",
+      "address": "Akshat Shukla, Kota, PIN: 209861",
+      "paymentMethod": "UPI",
+      "phone": "8870996546",
+      "items": [
+        {
+          "productId": 6,
+          "name": "Full Cricket Kit",
+          "type": "buy",
+          "qty": 1,
+          "price": 5599
+        }
+      ]
+    },
+    {
+      "id": "SX-1782178200000",
+      "userId": "usr_1781891764606",
+      "total": 1568,
+      "securityDeposit": 499,
+      "createdAt": "2026-06-23T01:30:00.000Z",
+      "status": "delivered",
+      "address": "Vivek, Church Street, Bangalore, PIN: 657689",
+      "paymentMethod": "COD",
+      "phone": "9087654567",
+      "items": [
+        {
+          "productId": 1,
+          "name": "Pro Football",
+          "type": "rent",
+          "qty": 2,
+          "price": 273
+        },
+        {
+          "productId": 9,
+          "name": "Butterfly TT Racket",
+          "type": "buy",
+          "qty": 1,
+          "price": 899
+        }
+      ]
+    },
+    {
+      "id": "SX-1782051000000",
+      "userId": "usr_1782136012776",
+      "total": 3618,
+      "securityDeposit": 499,
+      "createdAt": "2026-06-21T14:10:00.000Z",
+      "status": "delivered",
+      "address": "ALLEN, Church Street, Bangalore, PIN: 657689",
+      "paymentMethod": "UPI",
+      "phone": "8870996588",
+      "items": [
+        {
+          "productId": 5,
+          "name": "Nike Mercurial",
+          "type": "rent",
+          "qty": 1,
+          "price": 610
+        },
+        {
+          "productId": 3,
+          "name": "SS Kashmir Willow",
+          "type": "buy",
+          "qty": 1,
+          "price": 2599
+        }
+      ]
+    },
+    {
+      "id": "SX-1781922600000",
+      "userId": "usr_1782219113045",
+      "total": 1798,
+      "securityDeposit": 0,
+      "createdAt": "2026-06-20T02:30:00.000Z",
+      "status": "delivered",
+      "address": "Akshat Shukla, bmsce, PIN: 209861",
+      "paymentMethod": "COD",
+      "phone": "8870996946",
+      "items": [
+        {
+          "productId": 1,
+          "name": "Pro Football",
+          "type": "buy",
+          "qty": 2,
+          "price": 899
+        }
+      ]
+    },
+    {
+      "id": "SX-1781800200000",
+      "userId": "usr_1781421181016",
+      "total": 2168,
+      "securityDeposit": 499,
+      "createdAt": "2026-06-18T16:30:00.000Z",
+      "status": "delivered",
+      "address": "Akshat Shukla, Kota, PIN: 209861",
+      "paymentMethod": "UPI",
+      "phone": "8870996546",
+      "items": [
+        {
+          "productId": 11,
+          "name": "Selkirk Pickleball Paddle",
+          "type": "rent",
+          "qty": 1,
+          "price": 490
+        },
+        {
+          "productId": 4,
+          "name": "Kookaburra Helmet",
+          "type": "buy",
+          "qty": 1,
+          "price": 699
+        }
+      ]
     }
   ],
-  "cartIdx": 9,
+  "cartIdx": 17,
   "products": [
     {
       "id": 1,
@@ -159,7 +365,7 @@
       "rent": 39,
       "icon": "⚽",
       "filter": "balls",
-      "stock": 23
+      "stock": 4
     },
     {
       "id": 2,
@@ -169,7 +375,7 @@
       "rent": 80,
       "icon": "🏸",
       "filter": "rackets",
-      "stock": 7
+      "stock": 6
     },
     {
       "id": 3,
@@ -189,7 +395,7 @@
       "rent": 49,
       "icon": "⛑️",
       "filter": "helmets",
-      "stock": 20
+      "stock": 19
     },
     {
       "id": 5,
@@ -209,7 +415,7 @@
       "rent": 300,
       "icon": "🏏",
       "filter": "kits",
-      "stock": 5
+      "stock": 3
     },
     {
       "id": 7,
@@ -219,7 +425,7 @@
       "rent": 49,
       "icon": "🏀",
       "filter": "balls",
-      "stock": 18
+      "stock": 16
     },
     {
       "id": 8,

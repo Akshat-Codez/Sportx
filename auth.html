@@ -122,9 +122,10 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        localStorage.setItem('sportx_user',  data.name || phone);
-                        localStorage.setItem('sportx_phone', data.phone || phone);
-                        localStorage.setItem('sportx_token', data.token);
+                        localStorage.setItem('sportx_user',   data.name  || phone);
+                        localStorage.setItem('sportx_phone',  data.phone || phone);
+                        localStorage.setItem('sportx_token',  data.token);
+                        localStorage.setItem('sportx_userId', data.userId || data.id || '');
                         window.location.href = '/';
                     } else {
                         errorMsg.textContent = data.message;
@@ -180,9 +181,10 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    localStorage.setItem('sportx_user',  data.name || phone);
-                    localStorage.setItem('sportx_phone', data.phone || phone);
-                    localStorage.setItem('sportx_token', data.token);
+                    localStorage.setItem('sportx_user',   data.name  || phone);
+                    localStorage.setItem('sportx_phone',  data.phone || phone);
+                    localStorage.setItem('sportx_token',  data.token);
+                    localStorage.setItem('sportx_userId', data.userId || data.id || '');
                     window.location.href = '/';
                 } else {
                     errorMsg.textContent = data.message;
