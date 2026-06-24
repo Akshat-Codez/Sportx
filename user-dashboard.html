@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SportX — My Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="loading.css">
+
+<style>
+  /* ── Extra badge colours ── */
+  .badge.upi   { background:rgba(30,144,255,0.12); color:#1e90ff; border:1px solid rgba(30,144,255,0.28); }
+  .badge.cod   { background:rgba(255,200,0,0.12);  color:#ffc800; border:1px solid rgba(255,200,0,0.28); }
+  .badge.delivered { background:rgba(46,213,115,0.12); color:#2ed573; border:1px solid rgba(46,213,115,0.28); }
+  .badge.confirmed { background:rgba(255,200,0,0.12);  color:#ffc800; border:1px solid rgba(255,200,0,0.28); }
+
+  /* ── Pill for auto-delivery countdown ── */
+  .delivery-pill {
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:11px; font-weight:600; padding:3px 9px;
+    border-radius:20px; background:rgba(255,200,0,0.08);
+    color:#ffc800; border:1px solid rgba(255,200,0,0.2);
+    white-space:nowrap;
+  }
+  .delivery-pill.done { background:rgba(46,213,115,0.08); color:#2ed573; border-color:rgba(46,213,115,0.2); }
+
+  /* ── Modal ── */
+  .sx-modal-overlay {
+    display:none; position:fixed; top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.82); backdrop-filter:blur(6px);
+    z-index:3000; align-items:center; justify-content:center;
+  }
+  .sx-modal-overlay.open { display:flex; }
+  .sx-modal-box {
+    background:#111; padding:30px; border-radius:14px;
+    width:90%; max-width:460px; border:1px solid #2a2a2a;
+    position:relative; max-height:88vh; overflow-y:auto;
+  }
+  .sx-modal-box h3 {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:26px; margin-bottom:16px; color:var(--gold); letter-spacing:1px;
+  }
+  .sx-modal-close {
+    position:absolute; top:14px; right:18px;
+    color:#666; background:none; border:none;
+    font-size:22px; cursor:pointer; line-height:1;
+    transition:color .2s;
+  }
+  .sx-modal-close:hover { color:#fff; }
+  .sx-detail-row {
+    display:flex; justify-content:space-between; align-items:flex-start;
+    padding:9px 0; border-bottom:1px solid #1e1e1e; font-size:13px; gap:12px;
+  }
+  .sx-detail-row:last-child { border-bottom:none; }
+  .sx-detail-label { color:#666; font-weight:500; flex-shrink:0; }
+  .sx-detail-val   { color:#e0e0e0; text-align:right; }
+  .sx-items-title  { font-size:11px; font-weight:700; letter-spacing:1.5px;
+    color:#444; text-transform:uppercase; margin:14px 0 8px; }
+  .sx-item-line {
+    display:flex; justify-content:space-between;
+    font-size:12px; color:#aaa; padding:5px 0;
+    border-bottom:1px dashed #1a1a1a;
+  }
+
+  /* ── Clickable row style ── */
+  tbody tr { cursor:pointer; }
+  tbody tr:hover { background:rgba(245,166,35,0.04) !important; }
+</style>
+</head>
+<body>
+
+<!-- ── Background glow effect ── -->
+<div class="bg-glow"></div>
+
+<!-- ── Mobile backdrop (shown when sidebar is open) ── -->
+<div class="sidebar-backdrop" id="sidebar-backdrop" onclick="SXUserDash.closeSidebar()"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SIDEBAR — Navigation
+═══════════════════════════════════════════════════════ -->
+<div class="sidebar">
+  <button class="sidebar-close" onclick="SXUserDash.closeSidebar()" aria-label="Close menu">&times;</button>
+  <div class="logo">SPORT<span>X</span></div>
+  <a class="nav-item active" id="nav-dash"      onclick="SXUserDash.switchTab('dash')">      <i>📊</i> Overview</a>
+  <a class="nav-item"        id="nav-orders"    onclick="SXUserDash.switchTab('orders')">    <i>📦</i> My Orders</a>
+  <a class="nav-item"        id="nav-profile"   onclick="SXUserDash.switchTab('profile')">   <i>👤</i> Profile</a>
+  
+  <div style="margin-top:auto">
+    <a class="nav-item" href="index.html" style="color:var(--gold)"><i>🔙</i> Back to Store</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MAIN CONTENT AREA
+═══════════════════════════════════════════════════════ -->
+<div class="main">
+  <div class="header">
+    <button class="hamburger-btn" onclick="SXUserDash.openSidebar()" aria-label="Open menu">☰</button>
+    <h1 id="page-title">My Dashboard</h1>
+    <div class="user-profile" onclick="SXUserDash.switchTab('profile')">
+      <div class="avatar">👤</div>
+      <span style="font-size:14px;font-weight:600;color:#fff;" id="profile-name-display">User</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       OVERVIEW TAB
+  ══════════════════════════════════════════════════ -->
+  <div id="view-dash">
+
+    <!-- ── Metrics Grid ── -->
+    <div class="stats-grid">
+      <div class="stat-card gold">
+        <div class="stat-icon">₹</div>
+        <div class="stat-value" id="s-spent">0</div>
+        <div class="stat-label">Total Spent</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-value" id="s-ord">0</div>
+        <div class="stat-label">Total Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏸</div>
+        <div class="stat-value" id="s-rentals">0</div>
+        <div class="stat-label">Active Rentals</div>
+      </div>
+    </div>
+
+    <!-- ── Recent Orders Table ── -->
+    <div class="section-title">RECENT ORDERS</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Delivery</th>
+          </tr>
+        </thead>
+        <tbody id="dash-orders">
+          <tr><td colspan="5" class="empty-state">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       MY ORDERS TAB
+  ══════════════════════════════════════════════════ -->
+  <div id="view-orders" style="display:none;">
+    <div class="section-title">ORDER HISTORY</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Delivery</th>
+          </tr>
+        </thead>
+        <tbody id="dash-orders-full">
+          <tr><td colspan="6" class="empty-state">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       PROFILE TAB
+  ══════════════════════════════════════════════════ -->
+  <div id="view-profile" style="display:none;">
+    <div class="section-title">MY PROFILE</div>
+    <div class="table-container" style="padding: 40px;">
+      <div style="max-width: 400px;">
+        <div style="margin-bottom: 24px;">
+          <h4 style="color:#666; font-size:12px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Phone Number</h4>
+          <div style="font-size:18px; color:#fff;" id="profile-phone-display">Loading...</div>
+        </div>
+        <div style="margin-bottom: 32px;">
+          <h4 style="color:#666; font-size:12px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Account Status</h4>
+          <span class="badge success" style="font-size:14px; padding:6px 14px;">VERIFIED</span>
+        </div>
+        
+        <hr style="border:none; border-top:1px solid rgba(255,255,255,0.08); margin-bottom:32px;">
+        
+        <button onclick="SXUserDash.logout()" style="background:#ff4757; color:#fff; border:none; padding:12px 24px; border-radius:8px; font-weight:600; cursor:pointer; font-size:14px;">Log Out</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     ORDER DETAIL MODAL
+══════════════════════════════════════════════════ -->
+<div id="order-modal" class="sx-modal-overlay">
+  <div class="sx-modal-box">
+    <button class="sx-modal-close" onclick="SXUserDash.closeModal('order-modal')">&times;</button>
+    <h3>ORDER DETAILS</h3>
+    <div id="order-details-content"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════════════ -->
+<script src="loading.js"></script>
+<script src="js/user-dashboard.js"></script>
+<script>
+// Initial data load
+SXUserDash.loadDashboard();
+
+// Close modal on backdrop click
+document.getElementById('order-modal').addEventListener('click', function(e) {
+  if (e.target === this) SXUserDash.closeModal('order-modal');
+});
+</script>
+</body>
+</html>

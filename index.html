@@ -1421,7 +1421,7 @@ if (currentUser) {
   const loginBtn = document.querySelector('.btn-login');
   loginBtn.innerHTML = `👤 ${currentUser}`;
   loginBtn.onclick = () => {
-    openProfileModal();
+    window.location.href = '/user-dashboard.html';
   };
 }
 let checkoutData = { address: '', paymentMethod: '', phone: localStorage.getItem('sportx_phone') || '' };

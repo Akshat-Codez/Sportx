@@ -35,12 +35,29 @@
       "address": "",
       "verified": true,
       "createdAt": "2026-06-23T12:51:53.046Z"
+    },
+    {
+      "id": "usr_1782322117421",
+      "phone": "8870946541",
+      "passwordHash": "cb796a5fd1cbd4e1f572f4b9849969f4:91e862d71e32d03fc17ab1fb2b9c21879f801ea5001730306fcae129893cb4cab34744fd0174fb3c3d5a859e4f10e013f30db5c5f21c6ffe32d62fae39386cb2",
+      "name": "Akash",
+      "address": "",
+      "verified": true,
+      "createdAt": "2026-06-24T17:28:37.452Z"
     }
   ],
   "cart": [
     {
       "id": 3,
       "userId": "usr_1780379186782",
+      "productId": 2,
+      "type": "buy",
+      "qty": 1,
+      "days": 1
+    },
+    {
+      "id": 17,
+      "userId": "usr_1782322117421",
       "productId": 2,
       "type": "buy",
       "qty": 1,
@@ -54,7 +71,7 @@
       "total": 2441,
       "securityDeposit": 499,
       "createdAt": "2026-06-24T16:36:08.173Z",
-      "status": "confirmed",
+      "status": "delivered",
       "address": "Akshat Shukla, bmsce, PIN: 209861",
       "paymentMethod": "COD",
       "phone": "8870996946",
@@ -355,7 +372,7 @@
       ]
     }
   ],
-  "cartIdx": 17,
+  "cartIdx": 18,
   "products": [
     {
       "id": 1,

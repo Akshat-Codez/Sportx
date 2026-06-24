@@ -126,7 +126,7 @@
                         localStorage.setItem('sportx_phone',  data.phone || phone);
                         localStorage.setItem('sportx_token',  data.token);
                         localStorage.setItem('sportx_userId', data.userId || data.id || '');
-                        window.location.href = '/';
+                        window.location.href = '/user-dashboard.html';
                     } else {
                         errorMsg.textContent = data.message;
                     }
@@ -185,7 +185,7 @@
                     localStorage.setItem('sportx_phone',  data.phone || phone);
                     localStorage.setItem('sportx_token',  data.token);
                     localStorage.setItem('sportx_userId', data.userId || data.id || '');
-                    window.location.href = '/';
+                    window.location.href = '/user-dashboard.html';
                 } else {
                     errorMsg.textContent = data.message;
                 }
