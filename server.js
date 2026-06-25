@@ -47,6 +47,8 @@ app.get('/api/stats', async (_req, res) => {
     
     const orders = await Order.find();
     const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+    const totalSecurityDeposit = orders.reduce((sum, o) => sum + (o.securityDeposit || 0), 0);
+    const actualRevenue = totalRevenue - totalSecurityDeposit;
     
     const lowStockProducts = await Product.find({ stock: { $lt: 6 } });
     
@@ -56,6 +58,8 @@ app.get('/api/stats', async (_req, res) => {
         totalProducts,
         totalOrders,
         totalRevenue,
+        actualRevenue,
+        totalSecurityDeposit,
         lowStock: lowStockProducts.map(p => ({ name: p.name, stock: p.stock })),
       },
     });

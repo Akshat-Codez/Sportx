@@ -79,6 +79,8 @@ const SXAdmin = (() => {
   ──────────────────────────────────────────────────────── */
   function renderMetrics(data) {
     document.getElementById('s-rev').innerText  = '₹' + (data.totalRevenue || 0).toLocaleString();
+    document.getElementById('s-actual-rev').innerText = '₹' + (data.actualRevenue || 0).toLocaleString();
+    document.getElementById('s-deposit').innerText = '₹' + (data.totalSecurityDeposit || 0).toLocaleString();
     document.getElementById('s-ord').innerText  = data.totalOrders;
     document.getElementById('s-prod').innerText = data.totalProducts;
     document.getElementById('s-low').innerText  = data.lowStock.length;
