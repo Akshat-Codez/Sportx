@@ -510,13 +510,13 @@
   </div>
   <div class="nav-right">
     <button class="btn-cart" onclick="toggleCart()" aria-label="View Cart">🛒 Cart <span class="cart-badge" id="cart-count">0</span></button>
-    <button class="btn-login" aria-label="Login" onclick="window.location.href='/auth.html'">👤 Login</button>
+    <button class="btn-login" aria-label="Login" onclick="window.location.href='/login'">👤 Login</button>
   </div>
 </nav>
 
 <div class="nav-tabs">
   <div class="nav-tab active">🏆 SHOP GEAR</div>
-  <a href="/contact.html" class="nav-tab" style="text-decoration:none;">📞 CONTACT</a>
+  <a href="/contact" class="nav-tab" style="text-decoration:none;">📞 CONTACT</a>
 </div>
 
 <div class="hero" id="hero-section">
@@ -678,7 +678,7 @@
     </div>
 
     <button class="btn-primary" onclick="confirmAddress()" id="addr-confirm-btn">Proceed to Payment</button>
-    <a href="/user-dashboard.html" style="display:block;text-align:center;margin-top:12px;font-size:12px;color:#555;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='#555'">⚙ Manage saved addresses</a>
+    <a href="/dashboard" style="display:block;text-align:center;margin-top:12px;font-size:12px;color:#555;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='#555'">⚙ Manage saved addresses</a>
   </div>
 </div>
 
@@ -1444,7 +1444,7 @@ if (currentUser) {
   const loginBtn = document.querySelector('.btn-login');
   loginBtn.innerHTML = `👤 ${currentUser}`;
   loginBtn.onclick = () => {
-    window.location.href = '/user-dashboard.html';
+    window.location.href = '/dashboard';
   };
 }
 let checkoutData = { address: '', paymentMethod: '', phone: localStorage.getItem('sportx_phone') || '' };

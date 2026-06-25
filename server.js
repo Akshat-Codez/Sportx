@@ -44,6 +44,25 @@ app.get('/api/stats', (_req, res) => {
   });
 });
 
+// ─── Clean URL Routes ─────────────────────────────────────
+// Maps friendly paths to HTML files so no .html extension needed.
+const PAGES = {
+  '/store'     : 'index.html',
+  '/login'     : 'auth.html',
+  '/signin'    : 'auth.html',
+  '/register'  : 'auth.html',
+  '/admin'     : 'admin.html',
+  '/dashboard' : 'user-dashboard.html',
+  '/account'   : 'user-dashboard.html',
+  '/contact'   : 'contact.html',
+};
+
+Object.entries(PAGES).forEach(([route, file]) => {
+  app.get(route, (_req, res) =>
+    res.sendFile(path.join(__dirname, file))
+  );
+});
+
 // 404 Handler
 app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, '404.html'));
