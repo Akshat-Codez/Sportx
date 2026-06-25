@@ -583,7 +583,12 @@
   <div class="modal">
     <h3>SELECT DURATION</h3>
     <p>How many days would you like to rent <b id="rent-pname"></b>?</p>
-    <input type="number" id="rent-days" min="7" max="20" value="7"/>
+    <select id="rent-days" class="form-input" style="width:100%; margin: 15px 0;">
+      <option value="3">Short Trip / Weekend (3 days)</option>
+      <option value="7" selected>1 Week Tournament / Camp (7 days)</option>
+      <option value="14">2 Weeks (14 days)</option>
+      <option value="30">1 Month Season (30 days)</option>
+    </select>
     <div class="modal-btns">
       <button class="btn-m-cancel" onclick="closeRentModal()">Cancel</button>
       <button class="btn-m-confirm" onclick="confirmRent()">Confirm Rent</button>
@@ -1269,7 +1274,7 @@ function closeRentModal() {
 }
 function confirmRent() {
   let days = parseInt(document.getElementById('rent-days').value) || 7;
-  if(days < 7) days = 7; if(days > 20) days = 20;
+  days = Math.max(1, days);
   if(pendingRentProduct) {
     const btn = document.querySelector('.btn-m-confirm');
     SXLoading.buttonAction(btn, async () => {
@@ -1349,9 +1354,16 @@ async function loadCart() {
             <div class="c-details">
               <div class="c-name">${item.product.name}</div>
               <span class="c-type">${item.type.toUpperCase()}</span>
-              <div class="c-actions">
+              <div class="c-actions" style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:8px;">
                 <span class="c-price">${priceStr}</span>
-                <button onclick="removeFromCart(${item.id}, this)" style="min-width:28px; min-height:28px;">🗑️</button>
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <div class="c-qty-controls" style="display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.05); padding:2px 4px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);">
+                    <button onclick="updateCartQty(${item.id}, -1, this)" style="background:none;border:none;color:#fff;cursor:pointer;padding:0 6px;font-size:16px;">-</button>
+                    <span style="font-size:12px;font-weight:600;min-width:12px;text-align:center;">${item.qty}</span>
+                    <button onclick="updateCartQty(${item.id}, 1, this)" style="background:none;border:none;color:#fff;cursor:pointer;padding:0 6px;font-size:14px;">+</button>
+                  </div>
+                  <button onclick="removeFromCart(${item.id}, this)" style="background:none;border:none;cursor:pointer;font-size:16px;margin-left:4px;" title="Delete">🗑️</button>
+                </div>
               </div>
             </div>
           `;
@@ -1393,6 +1405,24 @@ async function removeFromCart(id, btn) {
       await apiFetch(`/api/cart/${id}`, { method: 'DELETE' });
       updateCartCount(); loadCart();
     } catch(e) { console.error(e); }
+  }
+}
+
+async function updateCartQty(id, delta, btn) {
+  const stop = SXLoading.buttonStart(btn, 'dark');
+  try {
+    const res = await apiFetch(`/api/cart/${id}/qty`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ delta })
+    });
+    stop();
+    if(res.ok) {
+      updateCartCount();
+      loadCart();
+    }
+  } catch (e) {
+    stop(); console.error(e);
   }
 }
 

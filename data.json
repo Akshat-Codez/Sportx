@@ -80,6 +80,14 @@
       "type": "buy",
       "qty": 1,
       "days": 1
+    },
+    {
+      "id": 21,
+      "userId": "usr_1782379491468",
+      "productId": 13,
+      "type": "buy",
+      "qty": 1,
+      "days": 1
     }
   ],
   "orders": [
@@ -437,7 +445,7 @@
       ]
     }
   ],
-  "cartIdx": 21,
+  "cartIdx": 22,
   "products": [
     {
       "id": 1,
