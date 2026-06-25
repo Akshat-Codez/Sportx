@@ -3,10 +3,26 @@ const Order = require('../models/Order');
 const OtpLog = require('../models/OtpLog');
 const User = require('../models/User');
 const Product = require('../models/Product');
+const { signJWT, requireAdminToken } = require('../utils/auth');
 
 const router = express.Router();
 
-router.get('/orders', async (req, res) => {
+// ── Admin credentials ──
+const ADMIN_ID = 'Admin555';
+const ADMIN_PASS = 'Admin555';
+
+// ── Admin Login ──
+router.post('/login', (req, res) => {
+  const { loginId, password } = req.body || {};
+  if (loginId === ADMIN_ID && password === ADMIN_PASS) {
+    const token = signJWT({ adminId: ADMIN_ID, role: 'admin' }, 86400 * 7); // 7 days
+    return res.json({ success: true, token, message: 'Admin login successful' });
+  }
+  return res.status(401).json({ success: false, message: 'Invalid admin credentials' });
+});
+
+// ── Protected Admin Routes ──
+router.get('/orders', requireAdminToken, async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });
     res.json({ success: true, count: orders.length, data: orders });
@@ -15,7 +31,7 @@ router.get('/orders', async (req, res) => {
   }
 });
 
-router.get('/otp-log', async (req, res) => {
+router.get('/otp-log', requireAdminToken, async (req, res) => {
   try {
     const logs = await OtpLog.find().sort({ time: -1 }).limit(200);
     res.json({ success: true, data: logs });
@@ -24,7 +40,7 @@ router.get('/otp-log', async (req, res) => {
   }
 });
 
-router.get('/users', async (req, res) => {
+router.get('/users', requireAdminToken, async (req, res) => {
   try {
     const users = await User.find().select('-passwordHash').sort({ createdAt: -1 });
     res.json({ success: true, count: users.length, data: users });
@@ -33,7 +49,7 @@ router.get('/users', async (req, res) => {
   }
 });
 
-router.get('/revenue-trend', async (req, res) => {
+router.get('/revenue-trend', requireAdminToken, async (req, res) => {
   try {
     const now = new Date();
     const days = [];
@@ -59,7 +75,7 @@ router.get('/revenue-trend', async (req, res) => {
   }
 });
 
-router.put('/order-status/:id', async (req, res) => {
+router.put('/order-status/:id', requireAdminToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;

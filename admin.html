@@ -97,9 +97,110 @@
   /* ── User expand toggle arrow ── */
   .expand-arrow { transition:transform .25s; display:inline-block; }
   .expand-arrow.open { transform:rotate(90deg); }
+<style>
+  /* ── Admin Login Screen ── */
+  .admin-login-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #0a0a0a;
+    z-index: 9999; display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+  .admin-login-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .admin-login-bg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(ellipse at 30% 20%, rgba(245,166,35,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(245,166,35,0.05) 0%, transparent 50%);
+  }
+  .admin-login-card {
+    position: relative; z-index: 1;
+    background: rgba(20, 20, 20, 0.85);
+    border: 1px solid rgba(245, 166, 35, 0.15);
+    border-radius: 24px; padding: 48px 40px;
+    width: 90%; max-width: 400px;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5);
+  }
+  .admin-login-card .login-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px; font-weight: 900; text-align: center;
+    color: #fff; margin-bottom: 8px; letter-spacing: 2px;
+  }
+  .admin-login-card .login-logo span { color: var(--gold, #f5a623); }
+  .admin-login-card .login-logo .logo-badge {
+    font-size: 10px; background: rgba(245,166,35,0.15); color: var(--gold, #f5a623);
+    padding: 3px 8px; border-radius: 6px; vertical-align: super; letter-spacing: 1.5px;
+    border: 1px solid rgba(245,166,35,0.25);
+  }
+  .admin-login-card .login-subtitle {
+    text-align: center; color: #666; font-size: 13px;
+    margin-bottom: 32px; font-weight: 400;
+  }
+  .admin-login-card .login-field {
+    margin-bottom: 20px;
+  }
+  .admin-login-card .login-field label {
+    display: block; font-size: 11px; font-weight: 600;
+    color: #888; letter-spacing: 1.2px; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .admin-login-card .login-field input {
+    width: 100%; padding: 14px 16px; font-size: 15px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; color: #fff; outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    font-family: 'Inter', sans-serif; box-sizing: border-box;
+  }
+  .admin-login-card .login-field input:focus {
+    border-color: rgba(245,166,35,0.5);
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.08);
+  }
+  .admin-login-card .login-field input::placeholder { color: #444; }
+  .admin-login-btn {
+    width: 100%; padding: 15px; font-size: 15px; font-weight: 700;
+    background: linear-gradient(135deg, #f5a623, #e6951e);
+    color: #000; border: none; border-radius: 12px; cursor: pointer;
+    letter-spacing: 0.5px; transition: transform 0.2s, box-shadow 0.3s;
+    font-family: 'Inter', sans-serif; margin-top: 8px;
+  }
+  .admin-login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(245,166,35,0.3);
+  }
+  .admin-login-btn:active { transform: translateY(0); }
+  .admin-login-btn:disabled {
+    opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none;
+  }
+  .admin-login-error {
+    text-align: center; color: #ff4757; font-size: 13px;
+    margin-top: 16px; min-height: 20px; font-weight: 500;
+  }
 </style>
+
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════════════════
+     ADMIN LOGIN SCREEN
+═══════════════════════════════════════════════════════ -->
+<div class="admin-login-overlay" id="admin-login-overlay">
+  <div class="admin-login-bg"></div>
+  <div class="admin-login-card">
+    <div class="login-logo">SPORT<span>X</span> <span class="logo-badge">ADMIN</span></div>
+    <div class="login-subtitle">Enter your admin credentials to continue</div>
+    <form id="admin-login-form" onsubmit="return handleAdminLogin(event)">
+      <div class="login-field">
+        <label for="admin-login-id">Login ID</label>
+        <input type="text" id="admin-login-id" placeholder="Enter admin ID" autocomplete="username" required />
+      </div>
+      <div class="login-field">
+        <label for="admin-login-pass">Password</label>
+        <input type="password" id="admin-login-pass" placeholder="Enter password" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="admin-login-btn" id="admin-login-btn">Sign In</button>
+      <div class="admin-login-error" id="admin-login-error"></div>
+    </form>
+  </div>
+</div>
 
 <!-- ── Background glow effect ── -->
 <div class="bg-glow"></div>
@@ -303,30 +404,88 @@
 <script src="js/admin-data.js"></script>
 <script>
 /* ══════════════════════════════════════════════════════════
-   INITIALIZATION
-   ──────────────────────────────────────────────────────
-   1. Fetch stats (populates metric cards + low stock alerts)
-   2. Fetch dashboard data (populates orders table + revenue chart)
-   3. Set up auto-refresh every 30 seconds for Overview tab
-   4. Wire up modal backdrop click-to-close
+   ADMIN LOGIN & INITIALIZATION
 ══════════════════════════════════════════════════════════ */
 
-// Initial data load
-SXData.fetchStats();
-SXData.fetchDashboardData();
+// ── Login Handler ──
+async function handleAdminLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('admin-login-btn');
+  const errEl = document.getElementById('admin-login-error');
+  const loginId = document.getElementById('admin-login-id').value.trim();
+  const password = document.getElementById('admin-login-pass').value;
 
-// Auto-refresh: keep Overview tab data fresh every 30 seconds
-setInterval(() => {
-  SXData.fetchStats();
-  if (document.getElementById('view-dash').style.display !== 'none') {
-    SXData.fetchDashboardData();
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  errEl.textContent = '';
+
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ loginId, password })
+    });
+    const json = await res.json();
+    if (json.success) {
+      localStorage.setItem('sportx_admin_token', json.token);
+      document.getElementById('admin-login-overlay').classList.add('hidden');
+      initDashboard();
+    } else {
+      errEl.textContent = json.message || 'Invalid credentials';
+    }
+  } catch (err) {
+    errEl.textContent = 'Connection error. Please try again.';
   }
-}, 30000);
+  btn.disabled = false;
+  btn.textContent = 'Sign In';
+  return false;
+}
 
-// Close modal on backdrop click
-document.getElementById('order-modal').addEventListener('click', function(e) {
-  if (e.target === this) SXAdmin.closeModal('order-modal');
-});
+// ── Logout (accessible from console or a button) ──
+function adminLogout() {
+  localStorage.removeItem('sportx_admin_token');
+  location.reload();
+}
+
+// ── Dashboard Init (only after auth) ──
+function initDashboard() {
+  SXData.fetchStats();
+  SXData.fetchDashboardData();
+
+  // Auto-refresh every 30 seconds
+  setInterval(() => {
+    SXData.fetchStats();
+    if (document.getElementById('view-dash').style.display !== 'none') {
+      SXData.fetchDashboardData();
+    }
+  }, 30000);
+
+  // Close modal on backdrop click
+  document.getElementById('order-modal').addEventListener('click', function(e) {
+    if (e.target === this) SXAdmin.closeModal('order-modal');
+  });
+}
+
+// ── Check existing token on page load ──
+(function() {
+  const token = localStorage.getItem('sportx_admin_token');
+  if (token) {
+    // Verify token is still valid with a lightweight request
+    fetch('/api/stats', { headers: { 'Authorization': 'Bearer ' + token } })
+      .then(r => {
+        if (r.ok) {
+          document.getElementById('admin-login-overlay').classList.add('hidden');
+          initDashboard();
+        } else {
+          localStorage.removeItem('sportx_admin_token');
+          document.getElementById('admin-login-overlay').classList.remove('hidden');
+        }
+      })
+      .catch(() => {
+        document.getElementById('admin-login-overlay').classList.remove('hidden');
+      });
+  }
+})();
 </script>
 </body>
 </html>

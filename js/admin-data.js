@@ -17,6 +17,17 @@
 const SXData = (() => {
 
   /* ────────────────────────────────────────────────────────
+     AUTHENTICATED FETCH HELPER
+     Automatically attaches the admin Bearer token to all requests.
+  ──────────────────────────────────────────────────────── */
+  function adminFetch(url, opts = {}) {
+    const token = localStorage.getItem('sportx_admin_token');
+    const headers = { ...(opts.headers || {}) };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    return fetch(url, { ...opts, headers });
+  }
+
+  /* ────────────────────────────────────────────────────────
      GLOBAL STATE
      Shared across all views. Updated by fetch functions.
   ──────────────────────────────────────────────────────── */
@@ -49,7 +60,7 @@ const SXData = (() => {
   ──────────────────────────────────────────────────────── */
   async function fetchStats() {
     try {
-      const res  = await fetch('/api/stats');
+      const res  = await adminFetch('/api/stats');
       const json = await res.json();
       if (json.success) {
         lowStockProducts = json.data.lowStock || [];
@@ -62,7 +73,7 @@ const SXData = (() => {
 
   /* ────────────────────────────────────────────────────────
      API: DASHBOARD DATA  (recent orders + revenue chart)
-     Fetches from /api/admin/orders (no auth required).
+     Fetches from /api/admin/orders (admin auth required).
   ──────────────────────────────────────────────────────── */
   async function fetchDashboardData() {
     const tbody = document.getElementById('dash-orders');
@@ -70,8 +81,8 @@ const SXData = (() => {
     try {
       // Fetch all orders and revenue trend in parallel
       const [ordRes, trendRes] = await Promise.all([
-        fetch('/api/admin/orders'),
-        fetch('/api/admin/revenue-trend')
+        adminFetch('/api/admin/orders'),
+        adminFetch('/api/admin/revenue-trend')
       ]);
       const ordJson   = await ordRes.json();
       const trendJson = await trendRes.json();
@@ -97,7 +108,7 @@ const SXData = (() => {
     const tbody = document.getElementById('dash-orders-full');
     SXLoading.showTableSkeletons(tbody, 8, 7, ['18%','15%','12%','10%','10%','10%','12%']);
     try {
-      const res  = await fetch('/api/admin/orders');
+      const res  = await adminFetch('/api/admin/orders');
       const json = await res.json();
       if (json.success && json.data.length > 0) {
         allOrders = json.data;
@@ -115,7 +126,7 @@ const SXData = (() => {
     const tbody = document.getElementById('dash-inventory');
     SXLoading.showTableSkeletons(tbody, 6, 5, ['8%','32%','16%','18%','14%']);
     try {
-      const res  = await fetch('/api/products');
+      const res  = await adminFetch('/api/products');
       const json = await res.json();
       if (json.success && json.data.length > 0) {
         SXLoading.reveal(tbody, () => SXAdmin.renderInventory(json.data));
@@ -133,8 +144,8 @@ const SXData = (() => {
     SXLoading.showTableSkeletons(tbody, 5, 7, ['5%','20%','18%','12%','16%','10%','10%']);
     try {
       const [uRes, oRes] = await Promise.all([
-        fetch('/api/admin/users'),
-        fetch('/api/admin/orders')
+        adminFetch('/api/admin/users'),
+        adminFetch('/api/admin/orders')
       ]);
       const uJson = await uRes.json();
       const oJson = await oRes.json();
@@ -158,7 +169,7 @@ const SXData = (() => {
     const stock = document.getElementById(`stock-input-${id}`).value;
     const btn   = document.getElementById(`update-btn-${id}`);
     await SXLoading.buttonAction(btn, async () => {
-      const res  = await fetch(`/api/products/${id}/stock`, {
+      const res  = await adminFetch(`/api/products/${id}/stock`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stock: parseInt(stock, 10) })
       });
@@ -174,7 +185,7 @@ const SXData = (() => {
   async function updateOrderStatus(id, status, btnId) {
     const btn = document.getElementById(btnId);
     await SXLoading.buttonAction(btn, async () => {
-      const res = await fetch(`/api/admin/order-status/${id}`, {
+      const res = await adminFetch(`/api/admin/order-status/${id}`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });

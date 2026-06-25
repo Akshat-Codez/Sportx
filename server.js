@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const connectDB = require('./lib/db');
+const { requireAdminToken } = require('./utils/auth');
 
 const Product = require('./models/Product');
 const Order = require('./models/Order');
@@ -40,7 +41,7 @@ app.use('/api/admin', adminRoutes);
 // Health check and stats
 app.get('/api/health', (_req, res) => res.json({ status:'ok', ts:new Date().toISOString() }));
 
-app.get('/api/stats', async (_req, res) => {
+app.get('/api/stats', requireAdminToken, async (_req, res) => {
   try {
     const totalProducts = await Product.countDocuments();
     const totalOrders = await Order.countDocuments();

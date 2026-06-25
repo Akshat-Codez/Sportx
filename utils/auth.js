@@ -65,11 +65,26 @@ function requireAdmin(req, res, next) {
   }
 }
 
+function requireAdminToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer '))
+    return res.status(401).json({ success: false, message: 'Admin authentication required' });
+
+  const token = authHeader.split(' ')[1];
+  const decoded = verifyJWT(token);
+  if (!decoded || decoded.role !== 'admin')
+    return res.status(401).json({ success: false, message: 'Invalid or expired admin token' });
+
+  req.adminId = decoded.adminId;
+  next();
+}
+
 module.exports = {
   hashPassword,
   verifyPassword,
   signJWT,
   verifyJWT,
   requireAuth,
-  requireAdmin
+  requireAdmin,
+  requireAdminToken
 };
