@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const { store } = require('../store');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev';
 

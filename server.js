@@ -1,7 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { init, store } = require('./store');
+const connectDB = require('./lib/db');
+
+const Product = require('./models/Product');
+const Order = require('./models/Order');
 
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
@@ -16,8 +19,16 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// Initialize data store
-init();
+// Middleware to ensure database connection is ready for serverless requests
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('Database connection error:', err);
+    res.status(500).json({ success: false, message: 'Database connection error: ' + err.message });
+  }
+});
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -29,19 +40,28 @@ app.use('/api/admin', adminRoutes);
 // Health check and stats
 app.get('/api/health', (_req, res) => res.json({ status:'ok', ts:new Date().toISOString() }));
 
-app.get('/api/stats', (_req, res) => {
-  const totalRevenue = store.orders.reduce((sum, o) => sum + (o.total || 0), 0);
-  res.json({
-    success: true,
-    data: {
-      totalProducts : store.products.length,
-      totalOrders   : store.orders.length,
-      totalRevenue,
-      lowStock      : store.products
-        .filter(p => p.stock < 6)
-        .map(p => ({ name: p.name, stock: p.stock })),
-    },
-  });
+app.get('/api/stats', async (_req, res) => {
+  try {
+    const totalProducts = await Product.countDocuments();
+    const totalOrders = await Order.countDocuments();
+    
+    const orders = await Order.find();
+    const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+    
+    const lowStockProducts = await Product.find({ stock: { $lt: 6 } });
+    
+    res.json({
+      success: true,
+      data: {
+        totalProducts,
+        totalOrders,
+        totalRevenue,
+        lowStock: lowStockProducts.map(p => ({ name: p.name, stock: p.stock })),
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 // ─── Clean URL Routes ─────────────────────────────────────
@@ -65,6 +85,9 @@ Object.entries(PAGES).forEach(([route, file]) => {
 
 // 404 Handler
 app.use((req, res) => {
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ success: false, message: 'Not found' });
+  }
   res.status(404).sendFile(path.join(__dirname, '404.html'));
 });
 

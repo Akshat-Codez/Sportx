@@ -1,73 +1,90 @@
 const express = require('express');
-const { store, saveData } = require('../store');
+const Order = require('../models/Order');
+const CartItem = require('../models/CartItem');
+const Product = require('../models/Product');
 const { requireAuth } = require('../utils/auth');
 
 const router = express.Router();
 
-router.post('/', requireAuth, (req, res) => {
-  const { address = '', paymentMethod = 'COD', phone = '' } = req.body || {};
+router.post('/', requireAuth, async (req, res) => {
+  try {
+    const { address = '', paymentMethod = 'COD', phone = '' } = req.body || {};
 
-  const userCart = store.cart.filter(c => c.userId === req.userId);
-  if (!userCart.length) {
-    return res.status(400).json({ success: false, message: 'Cart empty' });
-  }
-
-  let total     = 0;
-  let hasRental = false;
-  const items   = [];
-
-  userCart.forEach(c => {
-    const p = store.products.find(p => p.id === c.productId);
-    if (!p) return;
-
-    const linePrice = c.type === 'buy' ? p.price : p.rent * c.days;
-    total += linePrice * c.qty;
-    items.push({ productId: p.id, name: p.name, type: c.type, qty: c.qty, price: linePrice });
-
-    if (c.type === 'rent') hasRental = true;
-
-    if (p.stock >= c.qty) {
-      p.stock -= c.qty;
-    } else {
-      p.stock = 0;
+    const userCart = await CartItem.find({ userId: req.userId });
+    if (!userCart.length) {
+      return res.status(400).json({ success: false, message: 'Cart empty' });
     }
-  });
 
-  const deposit = hasRental ? 499 : 0;
-  total += deposit;
+    let total = 0;
+    let hasRental = false;
+    const items = [];
 
-  const orderId = `SX-${Date.now()}`;
+    for (const c of userCart) {
+      const p = await Product.findOne({ id: c.productId });
+      if (!p) continue;
 
-  store.orders.unshift({
-    id              : orderId,
-    userId          : req.userId,
-    total,
-    securityDeposit : deposit,
-    createdAt       : new Date().toISOString(),
-    status          : 'confirmed',
-    address,
-    paymentMethod,
-    phone,
-    items,
-  });
+      const linePrice = c.type === 'buy' ? p.price : p.rent * c.days;
+      total += linePrice * c.qty;
+      items.push({ productId: p.id, name: p.name, type: c.type, qty: c.qty, price: linePrice });
 
-  store.cart = store.cart.filter(c => c.userId !== req.userId);
+      if (c.type === 'rent') hasRental = true;
 
-  saveData();
+      if (p.stock >= c.qty) {
+        p.stock -= c.qty;
+      } else {
+        p.stock = 0;
+      }
+      await p.save();
+    }
 
-  res.status(201).json({
-    success         : true,
-    message         : 'Order placed',
-    orderId,
-    securityDeposit : deposit,
-    total,
-    items,
-  });
+    const deposit = hasRental ? 499 : 0;
+    total += deposit;
+
+    const orderId = `SX-${Date.now()}`;
+
+    const newOrder = await Order.create({
+      id: orderId,
+      userId: req.userId,
+      total,
+      securityDeposit: deposit,
+      address,
+      paymentMethod,
+      phone,
+      items,
+      status: 'confirmed'
+    });
+
+    await CartItem.deleteMany({ userId: req.userId });
+
+    res.status(201).json({
+      success: true,
+      message: 'Order placed',
+      orderId,
+      securityDeposit: deposit,
+      total,
+      items
+    });
+  } catch (err) {
+    res.status(500).json({ success:false, message: err.message });
+  }
 });
 
-router.get('/', requireAuth, (req, res) => {
-  const userOrders = store.orders.filter(o => o.userId === req.userId);
-  res.json({ success: true, count: userOrders.length, data: userOrders });
+router.get('/', requireAuth, async (req, res) => {
+  try {
+    const userOrders = await Order.find({ userId: req.userId }).sort({ createdAt: -1 });
+    res.json({ success: true, count: userOrders.length, data: userOrders });
+  } catch (err) {
+    res.status(500).json({ success:false, message: err.message });
+  }
+});
+
+router.get('/my', requireAuth, async (req, res) => {
+  try {
+    const userOrders = await Order.find({ userId: req.userId }).sort({ createdAt: -1 });
+    res.json({ success: true, count: userOrders.length, data: userOrders });
+  } catch (err) {
+    res.status(500).json({ success:false, message: err.message });
+  }
 });
 
 module.exports = router;
