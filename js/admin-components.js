@@ -28,12 +28,16 @@ const SXAdmin = (() => {
   /** Colored order status badge using effective status. */
   function statusBadge(order) {
     const st = SXData.effectiveStatus(order);
+    if (st === 'cancelled') return `<span class="badge" style="background: rgba(255,71,87,.12); color: #ff4757; border: 1px solid rgba(255,71,87,.25);">CANCELLED</span>`;
     if (st === 'delivered') return `<span class="badge delivered">DELIVERED</span>`;
     return `<span class="badge confirmed">CONFIRMED</span>`;
   }
 
   /** Auto-delivery countdown pill with live ticker. */
   function deliveryPill(order, cellId) {
+    if (order.status === 'cancelled') {
+      return `<span class="delivery-pill" style="color:#ff4757;background:rgba(255,71,87,0.1)">Cancelled</span>`;
+    }
     const ms = SXData.msUntilDelivery(order.createdAt);
     if (ms === 0 || order.status === 'delivered') {
       return `<span class="delivery-pill done">✓ Delivered</span>`;
@@ -51,6 +55,11 @@ const SXAdmin = (() => {
     _countdownTimers[cellId] = setInterval(() => {
       const el = document.getElementById('pill-' + cellId);
       if (!el) { clearInterval(_countdownTimers[cellId]); return; }
+      if (order.status === 'cancelled') {
+        clearInterval(_countdownTimers[cellId]);
+        el.outerHTML = `<span class="delivery-pill" style="color:#ff4757;background:rgba(255,71,87,0.1)">Cancelled</span>`;
+        return;
+      }
       const ms = SXData.msUntilDelivery(order.createdAt);
       if (ms === 0) {
         clearInterval(_countdownTimers[cellId]);
@@ -384,9 +393,9 @@ const SXAdmin = (() => {
       year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
     });
     const msLeft = SXData.msUntilDelivery(o.createdAt);
-    const deliverInfo = (st === 'delivered')
-      ? `<span class="badge delivered" style="font-size:12px;">DELIVERED</span>`
-      : `Approx. ${Math.ceil(msLeft / 60000)} min remaining`;
+    let deliverInfo = `Approx. ${Math.ceil(msLeft / 60000)} min remaining`;
+    if (st === 'delivered') deliverInfo = `<span class="badge delivered" style="font-size:12px;">DELIVERED</span>`;
+    if (st === 'cancelled') deliverInfo = `<span class="badge" style="background: rgba(255,71,87,.12); color: #ff4757; border: 1px solid rgba(255,71,87,.25); font-size:12px;">CANCELLED</span>`;
 
     let itemsHtml = '';
     if (o.items && o.items.length) {
