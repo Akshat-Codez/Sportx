@@ -640,25 +640,48 @@
 </div>
 
 <div class="modal-overlay" id="address-modal">
-  <div class="checkout-modal">
+  <div class="checkout-modal" style="max-width:520px;">
     <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()">&times;</button>
     <h3>DELIVERY DETAILS</h3>
-    <p>Where should we send your elite gear?</p>
-    <div class="form-group">
-      <label>Full Name</label>
-      <input type="text" id="addr-name" class="form-input" placeholder="John Doe" />
+    <p id="addr-modal-subtext">Where should we send your elite gear?</p>
+
+    <!-- ── Saved address selector (shown if saved addresses exist) ── -->
+    <div id="saved-addr-section" style="display:none; margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;color:#555;text-transform:uppercase;margin-bottom:10px;">Your Saved Addresses</div>
+      <div id="checkout-addr-list" style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;padding-right:4px;"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin:14px 0 10px;">
+        <div style="flex:1;height:1px;background:rgba(255,255,255,0.07);"></div>
+        <span style="font-size:11px;color:#444;white-space:nowrap;">or use a new address</span>
+        <div style="flex:1;height:1px;background:rgba(255,255,255,0.07);"></div>
+      </div>
     </div>
-    <div class="form-group">
-      <label>Street Address</label>
-      <input type="text" id="addr-street" class="form-input" placeholder="House No, Society, Street" />
+
+    <!-- ── Manual entry form ── -->
+    <div id="manual-addr-section">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="addr-name" class="form-input" placeholder="John Doe" />
+      </div>
+      <div class="form-group">
+        <label>Street Address</label>
+        <input type="text" id="addr-street" class="form-input" placeholder="House No, Society, Street" />
+      </div>
+      <div class="form-group">
+        <label>Pincode</label>
+        <input type="text" id="addr-pin" class="form-input" placeholder="110001" />
+      </div>
+      <!-- Save for future checkbox -->
+      <label style="display:flex;align-items:center;gap:9px;font-size:13px;color:#888;margin-bottom:14px;cursor:pointer;">
+        <input type="checkbox" id="addr-save-cb" style="accent-color:var(--gold);width:15px;height:15px;cursor:pointer;" />
+        Save this address for future orders
+      </label>
     </div>
-    <div class="form-group">
-      <label>Pincode</label>
-      <input type="text" id="addr-pin" class="form-input" placeholder="110001" />
-    </div>
-    <button class="btn-primary" onclick="confirmAddress()">Proceed to Payment</button>
+
+    <button class="btn-primary" onclick="confirmAddress()" id="addr-confirm-btn">Proceed to Payment</button>
+    <a href="/user-dashboard.html" style="display:block;text-align:center;margin-top:12px;font-size:12px;color:#555;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='#555'">⚙ Manage saved addresses</a>
   </div>
 </div>
+
 
 <div class="modal-overlay" id="payment-modal">
   <div class="checkout-modal">
@@ -1435,9 +1458,128 @@ function beginCheckout() {
   if (!currentUser) {
     document.getElementById('auth-modal').classList.add('active');
   } else {
-    document.getElementById('address-modal').classList.add('active');
+    openAddressModal();
   }
 }
+
+/* Inject checkout address card styles once */
+(function injectAddrStyles() {
+  if (document.getElementById('sx-addr-styles')) return;
+  const s = document.createElement('style');
+  s.id = 'sx-addr-styles';
+  s.textContent = `
+    .checkout-addr-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .checkout-addr-card:hover { border-color: rgba(245,166,35,0.35); background: rgba(245,166,35,0.03); }
+    .checkout-addr-card.sx-addr-selected {
+      border-color: var(--gold);
+      background: rgba(245,166,35,0.07);
+      box-shadow: 0 0 0 1px rgba(245,166,35,0.2);
+    }
+    .addr-radio-dot {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid #444;
+      margin-top: 2px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .2s;
+    }
+    .checkout-addr-card.sx-addr-selected .addr-radio-dot {
+      border-color: var(--gold);
+    }
+    .addr-radio-fill {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--gold); opacity: 0;
+      transition: opacity .2s;
+    }
+    .checkout-addr-card.sx-addr-selected .addr-radio-fill { opacity: 1; }
+    .addr-card-info { flex: 1; }
+    .addr-card-name { font-size: 14px; font-weight: 600; color: #fff; }
+    .addr-card-street { font-size: 12px; color: #888; margin-top: 2px; }
+    .addr-card-tag {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      color: #555; text-transform: uppercase;
+      background: rgba(255,255,255,0.05);
+      padding: 2px 7px; border-radius: 20px;
+      display: inline-block; margin-bottom: 4px;
+    }
+    .addr-card-default-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--gold);
+      display: inline-block; margin-left: 6px;
+      vertical-align: middle;
+    }
+  `;
+  document.head.appendChild(s);
+})();
+
+function openAddressModal() {
+  // Load saved addresses from localStorage
+  let savedAddrs = [];
+  try { savedAddrs = JSON.parse(localStorage.getItem('sportx_addresses') || '[]'); } catch(e) {}
+
+  const savedSection = document.getElementById('saved-addr-section');
+  const addrList = document.getElementById('checkout-addr-list');
+  const manualSection = document.getElementById('manual-addr-section');
+
+  if (savedAddrs.length > 0) {
+    savedSection.style.display = 'block';
+    addrList.innerHTML = '';
+
+    savedAddrs.forEach((addr, idx) => {
+      const addrStr = `${addr.name}, ${addr.street}, PIN: ${addr.pin}`;
+      const card = document.createElement('div');
+      card.className = 'checkout-addr-card' + (addr.isDefault ? ' sx-addr-selected' : '');
+      card.dataset.addrStr = addrStr;
+      card.innerHTML = `
+        <div class="addr-radio-dot"><div class="addr-radio-fill"></div></div>
+        <div class="addr-card-info">
+          <div><span class="addr-card-tag">${addr.type || 'Home'}</span>${addr.isDefault ? '<span class="addr-card-default-dot" title="Default"></span>' : ''}</div>
+          <div class="addr-card-name">${addr.name}</div>
+          <div class="addr-card-street">${addr.street} &middot; PIN ${addr.pin}</div>
+        </div>`;
+      card.addEventListener('click', () => {
+        addrList.querySelectorAll('.checkout-addr-card').forEach(c => c.classList.remove('sx-addr-selected'));
+        card.classList.add('sx-addr-selected');
+        // Hide manual form when a saved address is chosen
+        manualSection.style.display = 'none';
+      });
+      addrList.appendChild(card);
+    });
+
+    // "Use new address" link — shows manual form and de-selects cards
+    const newAddrBtn = document.createElement('button');
+    newAddrBtn.textContent = '+ Enter a new address';
+    newAddrBtn.style.cssText = 'background:none;border:none;color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;padding:6px 0;text-align:left;';
+    newAddrBtn.onclick = () => {
+      addrList.querySelectorAll('.checkout-addr-card').forEach(c => c.classList.remove('sx-addr-selected'));
+      manualSection.style.display = 'block';
+    };
+    addrList.appendChild(newAddrBtn);
+
+    // Start with manual section hidden if a default exists
+    if (savedAddrs.some(a => a.isDefault)) {
+      manualSection.style.display = 'none';
+    }
+
+    // Pre-fill name from user session for convenience
+    document.getElementById('addr-name').value = currentUser || '';
+  } else {
+    savedSection.style.display = 'none';
+    manualSection.style.display = 'block';
+    document.getElementById('addr-name').value = currentUser || '';
+  }
+
+  document.getElementById('address-modal').classList.add('active');
+}
+
 
 let otpInterval = null;
 function requestOTP() {
@@ -1481,12 +1623,44 @@ function verifyOTP() {
 }
 
 function confirmAddress() {
-  const name = document.getElementById('addr-name').value;
-  const street = document.getElementById('addr-street').value;
-  const pin = document.getElementById('addr-pin').value;
-  if(!name || !street || !pin) return showToast('Please fill all address fields');
+  // Check if user picked a saved address card
+  const selectedCard = document.querySelector('.checkout-addr-card.sx-addr-selected');
+  if (selectedCard) {
+    checkoutData.address = selectedCard.dataset.addrStr;
+    const btn = document.getElementById('addr-confirm-btn');
+    const stop = SXLoading.buttonStart(btn, 'gold');
+    setTimeout(() => {
+      stop();
+      document.getElementById('address-modal').classList.remove('active');
+      document.getElementById('payment-modal').classList.add('active');
+    }, 400);
+    return;
+  }
+
+  // Manual entry
+  const name   = document.getElementById('addr-name').value.trim();
+  const street = document.getElementById('addr-street').value.trim();
+  const pin    = document.getElementById('addr-pin').value.trim();
+  if (!name || !street || !pin) return showToast('Please fill all address fields');
   checkoutData.address = `${name}, ${street}, PIN: ${pin}`;
-  const btn = document.querySelector('#address-modal .btn-primary');
+
+  // Optionally save the address
+  if (document.getElementById('addr-save-cb')?.checked) {
+    try {
+      const existing = JSON.parse(localStorage.getItem('sportx_addresses') || '[]');
+      const newAddr = {
+        id: 'addr_' + Date.now(),
+        type: 'Home',
+        name, street, pin,
+        phone: localStorage.getItem('sportx_phone') || '',
+        isDefault: existing.length === 0
+      };
+      existing.push(newAddr);
+      localStorage.setItem('sportx_addresses', JSON.stringify(existing));
+    } catch(e) {}
+  }
+
+  const btn = document.getElementById('addr-confirm-btn');
   const stop = SXLoading.buttonStart(btn, 'gold');
   setTimeout(() => {
     stop();

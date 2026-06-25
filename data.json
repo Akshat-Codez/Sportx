@@ -44,6 +44,15 @@
       "address": "",
       "verified": true,
       "createdAt": "2026-06-24T17:28:37.452Z"
+    },
+    {
+      "id": "usr_1782323823329",
+      "phone": "8820996546",
+      "passwordHash": "c0e70437d7329ff449e7d158b12348ef:b57d7309c66ef21d64b9fc5c9c192abc8e9e3c480d1ec200ffcc4f9f19826e32976e6c7fc963850c1fa3e2b74ed523f40a6fa1999243ab6e9f29141e8a2a74b3",
+      "name": "ALLEN",
+      "address": "",
+      "verified": true,
+      "createdAt": "2026-06-24T17:57:03.329Z"
     }
   ],
   "cart": [
@@ -65,6 +74,26 @@
     }
   ],
   "orders": [
+    {
+      "id": "SX-1782323869865",
+      "userId": "usr_1782323823329",
+      "total": 899,
+      "securityDeposit": 0,
+      "createdAt": "2026-06-24T17:57:49.865Z",
+      "status": "delivered",
+      "address": "jAMES, cHURCH sTREET,bANGLORE, PIN: 657689",
+      "paymentMethod": "COD",
+      "phone": "8820996546",
+      "items": [
+        {
+          "productId": 7,
+          "name": "NBA Spalding",
+          "type": "buy",
+          "qty": 1,
+          "price": 899
+        }
+      ]
+    },
     {
       "id": "SX-1782318968144",
       "userId": "usr_1782219113045",
@@ -372,7 +401,7 @@
       ]
     }
   ],
-  "cartIdx": 18,
+  "cartIdx": 19,
   "products": [
     {
       "id": 1,
@@ -442,7 +471,7 @@
       "rent": 49,
       "icon": "🏀",
       "filter": "balls",
-      "stock": 16
+      "stock": 15
     },
     {
       "id": 8,
