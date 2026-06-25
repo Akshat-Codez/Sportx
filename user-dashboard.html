@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>SportX — My Addresses</title>
-<meta name="description" content="Manage your saved delivery addresses for SportX orders." />
+<title>SportX — My Account</title>
+<meta name="description" content="Manage your saved addresses and view order history on SportX." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="admin.css">
@@ -12,279 +12,94 @@
 
 <style>
 /* ═══════════════════════════════════════════════════════════
-   USER DASHBOARD — Address Management
-   Matches the project's gold/dark theme exactly
+   USER DASHBOARD — full styles
+   Theme: matches project gold/dark/glassmorphism system
 ═══════════════════════════════════════════════════════════ */
 
-/* ── Address Grid ── */
+/* ─── Address Grid ─── */
 #address-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
   margin-top: 8px;
 }
-
-/* ── Empty state ── */
 .addr-empty {
-  grid-column: 1 / -1;
+  grid-column: 1/-1;
   text-align: center;
   padding: 60px 20px;
   color: #555;
 }
 .addr-empty-icon { font-size: 48px; margin-bottom: 14px; }
-.addr-empty p { font-size: 15px; color: #666; }
+.addr-empty p    { font-size: 15px; color: #666; }
 
-/* ── Address Card ── */
 .addr-card {
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
   padding: 20px;
-  transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+  transition: border-color .25s, box-shadow .25s, transform .2s;
   position: relative;
   overflow: hidden;
 }
 .addr-card::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top:0; left:0; right:0;
   height: 2px;
   background: transparent;
-  transition: background 0.3s;
+  transition: background .3s;
 }
-.addr-card:hover {
-  border-color: rgba(245, 166, 35, 0.3);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-  transform: translateY(-2px);
-}
+.addr-card:hover { border-color: rgba(245,166,35,.3); box-shadow: 0 8px 32px rgba(0,0,0,.4); transform: translateY(-2px); }
 .addr-card--default {
-  border-color: rgba(245, 166, 35, 0.4);
-  box-shadow: 0 0 0 1px rgba(245,166,35,0.15), 0 8px 24px rgba(0,0,0,0.3);
+  border-color: rgba(245,166,35,.4);
+  box-shadow: 0 0 0 1px rgba(245,166,35,.15), 0 8px 24px rgba(0,0,0,.3);
 }
-.addr-card--default::before {
-  background: linear-gradient(90deg, var(--gold), transparent);
-}
+.addr-card--default::before { background: linear-gradient(90deg, var(--gold), transparent); }
 
-/* ── Card Header ── */
-.addr-card__header {
+.addr-card__header  { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+.addr-card__label   { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.addr-type-pill     { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); color:#aaa; padding:3px 10px; border-radius:20px; }
+.addr-default-badge { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; background:rgba(245,166,35,.12); border:1px solid rgba(245,166,35,.3); color:var(--gold); padding:3px 10px; border-radius:20px; }
+.addr-card__actions { display:flex; gap:6px; flex-wrap:wrap; }
+.addr-btn { font-size:11px; font-weight:600; padding:5px 12px; border-radius:8px; border:none; cursor:pointer; transition:background .2s, transform .15s; }
+.addr-btn:hover { transform:translateY(-1px); }
+.addr-btn--ghost  { background:rgba(255,255,255,.05); color:#888; border:1px solid rgba(255,255,255,.08); }
+.addr-btn--ghost:hover { background:rgba(255,255,255,.1); color:#ccc; }
+.addr-btn--edit   { background:rgba(245,166,35,.1); color:var(--gold); border:1px solid rgba(245,166,35,.25); }
+.addr-btn--edit:hover { background:rgba(245,166,35,.2); }
+.addr-btn--delete { background:rgba(255,71,87,.08); color:#ff4757; border:1px solid rgba(255,71,87,.2); }
+.addr-btn--delete:hover { background:rgba(255,71,87,.15); }
+.addr-card__body { line-height:1.7; }
+.addr-name   { font-size:16px; font-weight:600; color:#fff; margin-bottom:4px; }
+.addr-street { font-size:14px; color:#aaa; margin-bottom:2px; }
+.addr-pin    { font-size:12px; color:#666; }
+.addr-phone  { font-size:12px; color:#666; }
+
+.addr-add-card {
+  border: 2px dashed rgba(245,166,35,.25);
+  border-radius: 16px;
+  min-height: 140px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px; cursor: pointer;
+  transition: border-color .25s, background .25s, transform .2s;
+  color: #555; font-size: 13px; font-weight: 500; padding: 20px;
+}
+.addr-add-card:hover { border-color: rgba(245,166,35,.6); background: rgba(245,166,35,.04); color: var(--gold); transform: translateY(-2px); }
+
+/* ─── Sub-header bar shared ─── */
+.view-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
 }
-.addr-card__label { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.view-header-text .section-title { margin-bottom: 4px; }
+.view-header-text p { font-size: 13px; color: #555; }
 
-.addr-type-pill {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #aaa;
-  padding: 3px 10px;
-  border-radius: 20px;
-}
-.addr-default-badge {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  background: rgba(245,166,35,0.12);
-  border: 1px solid rgba(245,166,35,0.3);
-  color: var(--gold);
-  padding: 3px 10px;
-  border-radius: 20px;
-}
-
-/* ── Card Action Buttons ── */
-.addr-card__actions { display: flex; gap: 6px; flex-wrap: wrap; }
-.addr-btn {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 5px 12px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s, opacity 0.2s, transform 0.15s;
-  letter-spacing: 0.3px;
-}
-.addr-btn:hover { transform: translateY(-1px); }
-.addr-btn--ghost {
-  background: rgba(255,255,255,0.05);
-  color: #888;
-  border: 1px solid rgba(255,255,255,0.08);
-}
-.addr-btn--ghost:hover { background: rgba(255,255,255,0.1); color: #ccc; }
-.addr-btn--edit {
-  background: rgba(245,166,35,0.1);
-  color: var(--gold);
-  border: 1px solid rgba(245,166,35,0.25);
-}
-.addr-btn--edit:hover { background: rgba(245,166,35,0.2); }
-.addr-btn--delete {
-  background: rgba(255,71,87,0.08);
-  color: #ff4757;
-  border: 1px solid rgba(255,71,87,0.2);
-}
-.addr-btn--delete:hover { background: rgba(255,71,87,0.15); }
-
-/* ── Card Body ── */
-.addr-card__body { line-height: 1.7; }
-.addr-name   { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 4px; }
-.addr-street { font-size: 14px; color: #aaa; margin-bottom: 2px; }
-.addr-pin    { font-size: 12px; color: #666; }
-.addr-phone  { font-size: 12px; color: #666; }
-
-/* ── Add Address button (card-style) ── */
-.addr-add-card {
-  border: 2px dashed rgba(245,166,35,0.25);
-  border-radius: 16px;
-  min-height: 160px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  cursor: pointer;
-  transition: border-color 0.25s, background 0.25s, transform 0.2s;
-  color: #555;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 20px;
-}
-.addr-add-card:hover {
-  border-color: rgba(245,166,35,0.6);
-  background: rgba(245,166,35,0.04);
-  color: var(--gold);
-  transform: translateY(-2px);
-}
-.addr-add-icon {
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  border: 2px dashed rgba(245,166,35,0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  transition: border-color 0.25s;
-}
-.addr-add-card:hover .addr-add-icon { border-color: var(--gold); }
-
-/* ═══════════════════════════════════════════════════════
-   ADDRESS FORM MODAL
-═══════════════════════════════════════════════════════ */
-.sx-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.82);
-  backdrop-filter: blur(8px);
-  z-index: 3000;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-.sx-overlay.open { display: flex; }
-
-.sx-modal {
-  background: #111;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 20px;
-  width: 100%;
-  max-width: 480px;
-  padding: 32px;
-  position: relative;
-  box-shadow: 0 40px 80px rgba(0,0,0,0.7);
-  animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
-}
-@keyframes modalIn {
-  from { opacity: 0; transform: scale(0.92) translateY(20px); }
-  to   { opacity: 1; transform: scale(1)   translateY(0); }
-}
-.sx-modal__close {
-  position: absolute; top: 16px; right: 18px;
-  width: 32px; height: 32px;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 50%;
-  color: #888; font-size: 18px; cursor: pointer;
-  transition: background 0.2s, color 0.2s, transform 0.25s;
-}
-.sx-modal__close:hover { background: rgba(255,71,87,0.15); color: #ff4757; transform: rotate(90deg); }
-
-.sx-modal h3 {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 24px; font-weight: 900;
-  color: var(--gold);
-  letter-spacing: 1.5px;
-  margin-bottom: 6px;
-}
-.sx-modal .modal-sub {
-  font-size: 12px; color: #555; margin-bottom: 24px; letter-spacing: 0.3px;
-}
-
-/* ── Form fields ── */
-.sx-field { margin-bottom: 16px; }
-.sx-field label {
-  display: block;
-  font-size: 11px; font-weight: 700;
-  letter-spacing: 1.2px; text-transform: uppercase;
-  color: #555; margin-bottom: 7px;
-}
-.sx-field input,
-.sx-field select {
-  width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  color: #fff;
-  font-size: 14px;
-  font-family: 'Inter', sans-serif;
-  padding: 11px 14px;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  appearance: none;
-}
-.sx-field input:focus,
-.sx-field select:focus {
-  border-color: rgba(245,166,35,0.5);
-  box-shadow: 0 0 0 3px rgba(245,166,35,0.08);
-}
-.sx-field input::placeholder { color: #444; }
-.sx-field select option { background: #111; }
-
-/* Type selector row */
-.type-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-.type-chip {
-  flex: 1;
-  padding: 9px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.04);
-  color: #777;
-  font-size: 12px; font-weight: 600;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.type-chip:hover { border-color: rgba(245,166,35,0.3); color: #ccc; }
-.type-chip.selected {
-  border-color: var(--gold);
-  background: rgba(245,166,35,0.1);
-  color: var(--gold);
-}
-
-.sx-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-/* Save button */
+/* ─── Primary action button ─── */
 .sx-save-btn {
   width: 100%;
   margin-top: 8px;
@@ -293,22 +108,238 @@
   color: #000;
   font-weight: 700;
   font-size: 14px;
-  letter-spacing: 0.5px;
+  letter-spacing: .5px;
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 20px rgba(245,166,35,0.3);
+  transition: opacity .2s, transform .2s, box-shadow .2s;
+  box-shadow: 0 4px 20px rgba(245,166,35,.3);
 }
-.sx-save-btn:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 28px rgba(245,166,35,0.4);
+.sx-save-btn:hover { opacity:.92; transform:translateY(-1px); box-shadow:0 8px 28px rgba(245,166,35,.4); }
+
+/* ══════════════════════════════════════════════════
+   ORDER CARDS
+══════════════════════════════════════════════════ */
+#order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* ═══════════════════════════════════════════════════════
-   TOAST NOTIFICATIONS
-═══════════════════════════════════════════════════════ */
+.order-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 22px 24px;
+  transition: border-color .25s, box-shadow .25s;
+}
+.order-card:hover { border-color: rgba(245,166,35,.2); box-shadow: 0 6px 24px rgba(0,0,0,.4); }
+
+.ord-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ord-card__id { font-size: 13px; color: #aaa; }
+.ord-id-text  { font-family: monospace; color: var(--gold); font-size: 13px; }
+.ord-card__badges { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* Badges */
+.ord-badge { font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
+.ord-badge--delivered { background: rgba(46,213,115,.12); color: #2ed573; border: 1px solid rgba(46,213,115,.25); }
+.ord-badge--active    { background: rgba(245,166,35,.1);  color: var(--gold); border: 1px solid rgba(245,166,35,.25); }
+.ord-badge--upi       { background: rgba(30,144,255,.12); color: #1e90ff; border: 1px solid rgba(30,144,255,.25); }
+.ord-badge--cod       { background: rgba(255,200,0,.1);   color: #ffc800; border: 1px solid rgba(255,200,0,.25); }
+
+.ord-card__meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ── Progress tracker ── */
+.ord-progress-section { margin-bottom: 18px; }
+
+.ord-steps {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.ord-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.ord-step__dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid #333;
+  background: #111;
+  transition: border-color .4s, background .4s, box-shadow .4s;
+}
+.ord-step.done .ord-step__dot {
+  border-color: var(--gold);
+  background: var(--gold);
+  box-shadow: 0 0 8px rgba(245,166,35,.5);
+}
+.ord-step__label { font-size: 10px; color: #555; white-space: nowrap; letter-spacing: .3px; }
+.ord-step.done .ord-step__label { color: var(--gold); }
+
+.ord-step-line {
+  flex: 1;
+  height: 2px;
+  background: #222;
+  transition: background .4s;
+  margin-bottom: 15px;
+}
+.ord-step-line.done { background: var(--gold); }
+
+.ord-progress-bar {
+  height: 4px;
+  background: rgba(255,255,255,.06);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.ord-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #F5A623, #fff5d4);
+  border-radius: 10px;
+  transition: width 1s linear;
+}
+
+.ord-eta { font-size: 12px; color: var(--gold); font-weight: 600; }
+.ord-eta--done { color: #2ed573; }
+
+/* ── Items expandable ── */
+.ord-items-details { margin-top: 0; }
+.ord-items-summary {
+  font-size: 12px;
+  color: #555;
+  cursor: pointer;
+  padding: 4px 0;
+  list-style: none;
+  user-select: none;
+}
+.ord-items-summary:hover { color: #aaa; }
+.ord-items-list { padding: 10px 0 4px; border-top: 1px solid rgba(255,255,255,.05); margin-top: 6px; }
+.ord-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px dashed rgba(255,255,255,.05);
+  font-size: 13px;
+}
+.ord-item:last-child { border-bottom: none; }
+.ord-item-name  { flex: 1; color: #ccc; font-weight: 500; }
+.ord-item-meta  { font-size: 11px; color: #555; white-space: nowrap; }
+.ord-item-price { font-weight: 700; color: #fff; white-space: nowrap; min-width: 60px; text-align: right; }
+
+/* ── Rental return section ── */
+.ord-return {
+  margin-top: 14px;
+  background: rgba(245,166,35,.06);
+  border: 1px solid rgba(245,166,35,.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.ord-return--overdue {
+  background: rgba(255,71,87,.07);
+  border-color: rgba(255,71,87,.3);
+}
+.ord-return__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 5px;
+}
+.ord-return--overdue .ord-return__label { color: #ff4757; }
+.ord-return__date     { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+.ord-return__countdown { font-size: 12px; color: #888; }
+.ord-return__overdue-msg { font-size: 12px; color: #ff4757; font-weight: 600; }
+
+/* ══════════════════════════════════════════════════
+   ADDRESS FORM MODAL
+══════════════════════════════════════════════════ */
+.sx-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.82);
+  backdrop-filter: blur(8px);
+  z-index: 3000;
+  align-items: center; justify-content: center;
+  padding: 16px;
+}
+.sx-overlay.open { display: flex; }
+
+.sx-modal {
+  background: #111;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 20px;
+  width: 100%; max-width: 480px;
+  padding: 32px;
+  position: relative;
+  box-shadow: 0 40px 80px rgba(0,0,0,.7);
+  animation: modalIn .3s cubic-bezier(.34,1.56,.64,1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+@keyframes modalIn {
+  from { opacity:0; transform:scale(.92) translateY(20px); }
+  to   { opacity:1; transform:scale(1)   translateY(0); }
+}
+.sx-modal__close {
+  position: absolute; top:16px; right:18px;
+  width:32px; height:32px;
+  display:flex; align-items:center; justify-content:center;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 50%;
+  color:#888; font-size:18px; cursor:pointer;
+  transition: background .2s, color .2s, transform .25s;
+}
+.sx-modal__close:hover { background:rgba(255,71,87,.15); color:#ff4757; transform:rotate(90deg); }
+
+.sx-modal h3 { font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:900; color:var(--gold); letter-spacing:1.5px; margin-bottom:6px; }
+.sx-modal .modal-sub { font-size:12px; color:#555; margin-bottom:24px; }
+
+.sx-field { margin-bottom:16px; }
+.sx-field label { display:block; font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:#555; margin-bottom:7px; }
+.sx-field input {
+  width:100%; background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1); border-radius:10px;
+  color:#fff; font-size:14px; font-family:'Inter',sans-serif;
+  padding:11px 14px; outline:none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.sx-field input:focus { border-color:rgba(245,166,35,.5); box-shadow:0 0 0 3px rgba(245,166,35,.08); }
+.sx-field input::placeholder { color:#444; }
+.sx-field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+.type-row { display:flex; gap:10px; margin-bottom:18px; }
+.type-chip {
+  flex:1; padding:9px; border-radius:10px;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);
+  color:#777; font-size:12px; font-weight:600;
+  text-align:center; cursor:pointer; transition:all .2s;
+}
+.type-chip:hover { border-color:rgba(245,166,35,.3); color:#ccc; }
+.type-chip.selected { border-color:var(--gold); background:rgba(245,166,35,.1); color:var(--gold); }
+
+/* ── Toast ── */
 #dash-toasts {
   position: fixed;
   bottom: 24px; right: 24px;
@@ -316,58 +347,49 @@
   display: flex; flex-direction: column; gap: 10px;
 }
 .dash-toast {
-  padding: 13px 18px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 500;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.3s, transform 0.3s;
-  pointer-events: none;
-  min-width: 200px;
-  max-width: 300px;
-  backdrop-filter: blur(10px);
+  padding:13px 18px; border-radius:10px; font-size:13px; font-weight:500;
+  opacity:0; transform:translateY(10px);
+  transition:opacity .3s, transform .3s;
+  pointer-events:none; min-width:200px; max-width:300px;
+  backdrop-filter:blur(10px);
 }
-.dash-toast--in { opacity: 1; transform: translateY(0); }
-.dash-toast--success { background: rgba(46,213,115,0.15); border: 1px solid rgba(46,213,115,0.3); color: #2ed573; }
-.dash-toast--error   { background: rgba(255,71,87,0.15);  border: 1px solid rgba(255,71,87,0.3);  color: #ff4757; }
-.dash-toast--neutral { background: rgba(255,255,255,0.08);border: 1px solid rgba(255,255,255,0.12);color: #ccc; }
+.dash-toast--in { opacity:1; transform:translateY(0); }
+.dash-toast--success { background:rgba(46,213,115,.15); border:1px solid rgba(46,213,115,.3); color:#2ed573; }
+.dash-toast--error   { background:rgba(255,71,87,.15);  border:1px solid rgba(255,71,87,.3);  color:#ff4757; }
+.dash-toast--neutral { background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#ccc; }
 
-/* ── Log out button ── */
+/* ── Logout ── */
 .logout-btn {
   margin-top: 40px;
   padding: 11px 24px;
-  background: rgba(255,71,87,0.08);
+  background: rgba(255,71,87,.08);
   color: #ff4757;
-  border: 1px solid rgba(255,71,87,0.25);
+  border: 1px solid rgba(255,71,87,.25);
   border-radius: 10px;
   font-size: 13px; font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
+  transition: background .2s, transform .15s;
   display: inline-flex; align-items: center; gap: 8px;
 }
-.logout-btn:hover { background: rgba(255,71,87,0.16); transform: translateY(-1px); }
+.logout-btn:hover { background:rgba(255,71,87,.16); transform:translateY(-1px); }
 
 /* ── Responsive ── */
-@media (max-width: 540px) {
+@media (max-width:640px) {
   #address-cards { grid-template-columns: 1fr; }
-  .sx-modal { padding: 24px 18px; }
-  .sx-field-row { grid-template-columns: 1fr; }
-  .addr-card__header { flex-direction: column; align-items: flex-start; }
+  .sx-modal { padding:24px 18px; }
+  .sx-field-row { grid-template-columns:1fr; }
+  .addr-card__header { flex-direction:column; align-items:flex-start; }
+  .ord-step__label { display:none; }
+  .order-card { padding: 16px; }
 }
 </style>
 </head>
 <body>
 
-<!-- ── Background glow ── -->
 <div class="bg-glow"></div>
-
-<!-- ── Mobile sidebar backdrop ── -->
 <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="SXUserDash.closeSidebar()"></div>
 
-<!-- ═══════════════════════════════════════════════════════
-     SIDEBAR
-═══════════════════════════════════════════════════════ -->
+<!-- ═══ SIDEBAR ═══ -->
 <div class="sidebar">
   <button class="sidebar-close" onclick="SXUserDash.closeSidebar()" aria-label="Close menu">&times;</button>
   <div class="logo">SPORT<span>X</span></div>
@@ -375,18 +397,19 @@
   <a class="nav-item active" id="nav-addresses" onclick="SXUserDash.switchTab('addresses')">
     <i>📍</i> My Addresses
   </a>
+  <a class="nav-item" id="nav-orders" onclick="SXUserDash.switchTab('orders')">
+    <i>📦</i> Order History
+  </a>
 
   <div style="margin-top:auto; display:flex; flex-direction:column; gap:8px;">
     <a class="nav-item" href="index.html" style="color:var(--gold)"><i>🔙</i> Back to Store</a>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     MAIN CONTENT
-═══════════════════════════════════════════════════════ -->
+<!-- ═══ MAIN ═══ -->
 <div class="main">
 
-  <!-- ── Top Header ── -->
+  <!-- Header -->
   <div class="header">
     <button class="hamburger-btn" onclick="SXUserDash.openSidebar()" aria-label="Open menu">☰</button>
     <h1 id="page-title">My Addresses</h1>
@@ -396,65 +419,69 @@
     </div>
   </div>
 
-  <!-- ═════════════════════════════════════════════════
+  <!-- ══════════════════════════════════════
        ADDRESSES TAB
-  ═════════════════════════════════════════════════ -->
+  ══════════════════════════════════════ -->
   <div id="view-addresses">
-
-    <!-- Sub-header bar -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
-      <div>
-        <div class="section-title" style="margin-bottom:4px;">SAVED ADDRESSES</div>
-        <p style="font-size:13px; color:#555;">Your addresses are saved locally and pre-fill at checkout.</p>
+    <div class="view-header">
+      <div class="view-header-text">
+        <div class="section-title">SAVED ADDRESSES</div>
+        <p>Pre-filled at checkout for faster ordering.</p>
       </div>
-      <button class="sx-save-btn" style="width:auto; margin:0; padding:12px 22px; font-size:13px;"
+      <button class="sx-save-btn" style="width:auto;margin:0;padding:12px 22px;font-size:13px;"
               onclick="SXUserDash.openAddModal()">
         + Add New Address
       </button>
     </div>
 
-    <!-- Cards grid -->
-    <div id="address-cards">
-      <!-- Injected by JS -->
-    </div>
+    <div id="address-cards"><!-- Injected by JS --></div>
 
-    <!-- Logout -->
-    <button class="logout-btn" onclick="SXUserDash.logout()">
-      <span>⏻</span> Log Out
-    </button>
+    <button class="logout-btn" onclick="SXUserDash.logout()"><span>⏻</span> Log Out</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ORDER HISTORY TAB
+  ══════════════════════════════════════ -->
+  <div id="view-orders" style="display:none;">
+    <div class="view-header">
+      <div class="view-header-text">
+        <div class="section-title">ORDER HISTORY</div>
+        <p>Track your orders and rental returns.</p>
+      </div>
+    </div>
+    <div id="order-list">
+      <!-- Loading skeleton placeholder -->
+      <div class="addr-empty">
+        <div class="addr-empty-icon" style="font-size:36px;margin-bottom:8px;">⏳</div>
+        <p>Loading your orders…</p>
+      </div>
+    </div>
   </div>
 
 </div><!-- /main -->
 
-<!-- ═══════════════════════════════════════════════════════
-     ADDRESS FORM MODAL
-═══════════════════════════════════════════════════════ -->
-<div id="addr-form-modal" class="sx-overlay" onclick="handleOverlayClick(event, 'addr-form-modal')">
-  <div class="sx-modal" onclick="event.stopPropagation()">
+<!-- ═══ ADDRESS FORM MODAL ═══ -->
+<div id="addr-form-modal" class="sx-overlay" onclick="if(event.target===this)SXUserDash.closeModal('addr-form-modal')">
+  <div class="sx-modal">
     <button class="sx-modal__close" onclick="SXUserDash.closeModal('addr-form-modal')">&times;</button>
-
     <h3 id="addr-modal-title">ADD NEW ADDRESS</h3>
-    <p class="modal-sub">This will be available at checkout for quick selection.</p>
+    <p class="modal-sub">Available at checkout for quick selection.</p>
 
-    <!-- Address type chips -->
     <div class="type-row" id="type-chips">
-      <div class="type-chip selected" data-type="Home"   onclick="selectType(this)">🏠 Home</div>
-      <div class="type-chip"          data-type="Work"   onclick="selectType(this)">💼 Work</div>
-      <div class="type-chip"          data-type="Other"  onclick="selectType(this)">📦 Other</div>
+      <div class="type-chip selected" data-type="Home"  onclick="selectType(this)">🏠 Home</div>
+      <div class="type-chip"          data-type="Work"  onclick="selectType(this)">💼 Work</div>
+      <div class="type-chip"          data-type="Other" onclick="selectType(this)">📦 Other</div>
     </div>
-    <!-- Hidden input tracks selected type -->
     <input type="hidden" id="af-type" value="Home">
 
     <div class="sx-field">
       <label>Full Name *</label>
       <input type="text" id="af-name" placeholder="e.g. Akshat Sharma" autocomplete="name" />
     </div>
-
     <div class="sx-field">
       <label>Street Address *</label>
       <input type="text" id="af-street" placeholder="House No, Society, Street, City" autocomplete="street-address" />
     </div>
-
     <div class="sx-field-row">
       <div class="sx-field" style="margin-bottom:0">
         <label>Pincode *</label>
@@ -472,28 +499,17 @@
   </div>
 </div>
 
-<!-- ── Toast container ── -->
 <div id="dash-toasts"></div>
 
-<!-- ═══════════════════════════════════════════════════════
-     SCRIPTS
-═══════════════════════════════════════════════════════ -->
 <script src="loading.js"></script>
 <script src="js/user-dashboard.js"></script>
 <script>
-// Boot
 SXUserDash.loadDashboard();
 
-// Type chip selector
 function selectType(chip) {
   document.querySelectorAll('#type-chips .type-chip').forEach(c => c.classList.remove('selected'));
   chip.classList.add('selected');
   document.getElementById('af-type').value = chip.dataset.type;
-}
-
-// Close modal when clicking outside
-function handleOverlayClick(e, id) {
-  if (e.target.id === id) SXUserDash.closeModal(id);
 }
 </script>
 </body>

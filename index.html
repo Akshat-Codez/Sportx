@@ -1689,7 +1689,7 @@ function selectPayment(method) {
     // COD: read the current cart total NOW (before the flash hides the cart drawer)
     // so showSuccessFlash can display the correct amount, not ₹0
     const cartTotalText = document.getElementById('cart-total-price').innerText;
-    showSuccessFlash(cartTotalText, () => processFinalCheckout());
+    showSuccessFlash(cartTotalText, () => processFinalCheckout(), 'COD');
   }
 }
 
@@ -1727,7 +1727,8 @@ function processUpiPayment() {
       
       setTimeout(() => {
         document.getElementById('upi-modal').classList.remove('active');
-        showSuccessFlash(() => processFinalCheckout());
+        // UPI = paid already, so label is 'Amount Paid'
+        showSuccessFlash(document.getElementById('cart-total-price').innerText, () => processFinalCheckout(), 'UPI');
       }, 1000);
     }, 2000);
   }, 500);
@@ -1736,17 +1737,17 @@ function processUpiPayment() {
 /**
  * Show the full-screen green success flash.
  *
- * @param {string}   amountText  The formatted total string to display (e.g. "₹1,299").
- *                               Pass this in from the caller so we never read a stale DOM value.
- * @param {Function} callback    Called after the flash fades out.
+ * @param {string}   amountText     Formatted total string e.g. "₹1,299".
+ * @param {Function} callback       Called after the flash fades out.
+ * @param {string}   paymentMethod  'COD' | 'UPI' — controls label wording.
  */
-function showSuccessFlash(amountText, callback) {
+function showSuccessFlash(amountText, callback, paymentMethod) {
   const flash         = document.getElementById('sx-success-flash');
   const amountElement = document.getElementById('sx-flash-amount');
 
-  // Display the amount that was passed in — avoids reading ₹0 from an empty/resetting cart
   if (amountElement) {
-    amountElement.innerText = amountText ? 'Amount Paid: ' + amountText : '';
+    const label = (paymentMethod === 'COD') ? 'Amount to be paid: ' : 'Amount Paid: ';
+    amountElement.innerText = amountText ? label + amountText : '';
   }
 
   // Reset the tick SVG animation by re-cloning the node

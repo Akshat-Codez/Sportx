@@ -53,6 +53,15 @@
       "address": "",
       "verified": true,
       "createdAt": "2026-06-24T17:57:03.329Z"
+    },
+    {
+      "id": "usr_1782379491468",
+      "phone": "8840991930",
+      "passwordHash": "4c8d686df38e0a8143e2dcaa9a7b794b:d2453e36fe3a08505f049e9348b5b5510a8e95a1dabf3ff5ef68676cabd1cd414fcc22ec34d4fb5cc4c618c71f3b9ba07edecd0fc3c5c80680a760d5ffaed434",
+      "name": "Akshat Shukla",
+      "address": "",
+      "verified": true,
+      "createdAt": "2026-06-25T09:24:51.474Z"
     }
   ],
   "cart": [
@@ -74,6 +83,33 @@
     }
   ],
   "orders": [
+    {
+      "id": "SX-1782379668818",
+      "userId": "usr_1782379491468",
+      "total": 2763,
+      "securityDeposit": 499,
+      "createdAt": "2026-06-25T09:27:48.818Z",
+      "status": "confirmed",
+      "address": "Akshat Shukla, Main Hostel Unit1,Bmsce,Bengaluru, PIN: 250911",
+      "paymentMethod": "COD",
+      "phone": "8840991930",
+      "items": [
+        {
+          "productId": 2,
+          "name": "Yonex Nanoflare",
+          "type": "buy",
+          "qty": 1,
+          "price": 1599
+        },
+        {
+          "productId": 3,
+          "name": "SS Kashmir Willow",
+          "type": "rent",
+          "qty": 1,
+          "price": 665
+        }
+      ]
+    },
     {
       "id": "SX-1782323869865",
       "userId": "usr_1782323823329",
@@ -401,7 +437,7 @@
       ]
     }
   ],
-  "cartIdx": 19,
+  "cartIdx": 21,
   "products": [
     {
       "id": 1,
@@ -421,7 +457,7 @@
       "rent": 80,
       "icon": "🏸",
       "filter": "rackets",
-      "stock": 6
+      "stock": 5
     },
     {
       "id": 3,
@@ -431,7 +467,7 @@
       "rent": 95,
       "icon": "🏏",
       "filter": "sticks",
-      "stock": 14
+      "stock": 13
     },
     {
       "id": 4,
@@ -461,7 +497,7 @@
       "rent": 300,
       "icon": "🏏",
       "filter": "kits",
-      "stock": 3
+      "stock": 5
     },
     {
       "id": 7,
@@ -481,7 +517,7 @@
       "rent": 180,
       "icon": "🎾",
       "filter": "rackets",
-      "stock": 2
+      "stock": 5
     },
     {
       "id": 9,
