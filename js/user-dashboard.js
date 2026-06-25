@@ -172,7 +172,10 @@ const SXUserDash = (() => {
       : `<span class="ord-badge ord-badge--cod">COD</span>`;
 
     // Status badge — reflects current milestone
-    const statusBadge = delivered
+    const isCancelled = order.status === 'cancelled';
+    const statusBadge = isCancelled
+      ? `<span class="ord-badge ord-badge--cancelled" id="sbadge-${idx}">CANCELLED</span>`
+      : delivered
       ? `<span class="ord-badge ord-badge--delivered" id="sbadge-${idx}">DELIVERED</span>`
       : step2done
         ? `<span class="ord-badge ord-badge--transit" id="sbadge-${idx}">OUT FOR DELIVERY</span>`
@@ -214,31 +217,38 @@ const SXUserDash = (() => {
         <span style="font-weight:700;color:var(--gold)">₹${order.total.toLocaleString()}</span>
       </div>
 
-      <!-- Delivery Progress -->
+      <!-- Delivery Progress or Cancellation -->
       <div class="ord-progress-section">
-        <div class="ord-steps">
-          <div class="ord-step ${step1done ? 'done' : ''}">
-            <div class="ord-step__dot"></div>
-            <div class="ord-step__label">Confirmed</div>
+        ${isCancelled ? `
+          <div class="ord-cancel-msg">
+            <div style="font-weight:600; margin-bottom:6px; color:#ff4757;">Order Cancelled</div>
+            <p style="font-size:12px; color:#aaa; line-height:1.5;">We’re sorry, but your order has been canceled due to unforeseen circumstances. Any payment made will be refunded promptly. We truly value your interest and invite you to explore our other sports gear options. Thank you for your understanding.</p>
           </div>
-          <div class="ord-step-line ${step2done ? 'done' : ''}"></div>
-          <div class="ord-step ${step2done ? 'done' : ''}">
-            <div class="ord-step__dot"></div>
-            <div class="ord-step__label">Out for Delivery</div>
+        ` : `
+          <div class="ord-steps">
+            <div class="ord-step ${step1done ? 'done' : ''}">
+              <div class="ord-step__dot"></div>
+              <div class="ord-step__label">Confirmed</div>
+            </div>
+            <div class="ord-step-line ${step2done ? 'done' : ''}"></div>
+            <div class="ord-step ${step2done ? 'done' : ''}">
+              <div class="ord-step__dot"></div>
+              <div class="ord-step__label">Out for Delivery</div>
+            </div>
+            <div class="ord-step-line ${step3done ? 'done' : ''}"></div>
+            <div class="ord-step ${step3done ? 'done' : ''}">
+              <div class="ord-step__dot"></div>
+              <div class="ord-step__label">Delivered</div>
+            </div>
           </div>
-          <div class="ord-step-line ${step3done ? 'done' : ''}"></div>
-          <div class="ord-step ${step3done ? 'done' : ''}">
-            <div class="ord-step__dot"></div>
-            <div class="ord-step__label">Delivered</div>
+          <div class="ord-progress-bar">
+            <div class="ord-progress-fill" id="prog-fill-${idx}" style="width:${prog}%"></div>
           </div>
-        </div>
-        <div class="ord-progress-bar">
-          <div class="ord-progress-fill" id="prog-fill-${idx}" style="width:${prog}%"></div>
-        </div>
-        ${!delivered
-          ? `<div class="ord-eta" id="ord-eta-${idx}">⏱ Arriving in ${fmtDuration(msLeft)}</div>`
-          : `<div class="ord-eta ord-eta--done">✓ Delivered</div>`
-        }
+          ${!delivered
+            ? `<div class="ord-eta" id="ord-eta-${idx}">⏱ Arriving in ${fmtDuration(msLeft)}</div>`
+            : `<div class="ord-eta ord-eta--done">✓ Delivered</div>`
+          }
+        `}
       </div>
 
       <!-- Items -->
@@ -260,9 +270,9 @@ const SXUserDash = (() => {
 
     container.appendChild(card);
 
-    // Start live ticker if order not yet delivered
-    if (!delivered) startDeliveryTicker(order, idx);
-    if (hasRent && rentReturn && msUntilReturn(order) > 0) startReturnTicker(order, idx);
+    // Start live ticker if order not yet delivered and not cancelled
+    if (!delivered && !isCancelled) startDeliveryTicker(order, idx);
+    if (hasRent && rentReturn && msUntilReturn(order) > 0 && !isCancelled) startReturnTicker(order, idx);
   }
 
   function startDeliveryTicker(order, idx) {

@@ -62,6 +62,15 @@
       "address": "",
       "verified": true,
       "createdAt": "2026-06-25T09:24:51.474Z"
+    },
+    {
+      "id": "usr_1782381268354",
+      "phone": "9870996546",
+      "passwordHash": "0bf8420bc685787524f5ecb9317bafad:b8a39eb19747f211c2379d79b6e5ef60705fea9246535ec55b8c8f0f77ef597218014b987c7e92d2c90272e2d3c2faa7f4c88cfcb2ffca51b78c05c8d814a80b",
+      "name": "Aryan",
+      "address": "",
+      "verified": true,
+      "createdAt": "2026-06-25T09:54:28.354Z"
     }
   ],
   "cart": [
@@ -88,9 +97,37 @@
       "type": "buy",
       "qty": 1,
       "days": 1
+    },
+    {
+      "id": 22,
+      "userId": "usr_1782379491468",
+      "productId": 7,
+      "type": "rent",
+      "qty": 1,
+      "days": 15
     }
   ],
   "orders": [
+    {
+      "id": "SX-1782381330466",
+      "userId": "usr_1782381268354",
+      "total": 699,
+      "securityDeposit": 0,
+      "createdAt": "2026-06-25T09:55:30.466Z",
+      "status": "cancelled",
+      "address": "Aryan, Main Hostel Unit1,Bmsce,Bengaluru, PIN: 250911",
+      "paymentMethod": "UPI",
+      "phone": "9870996546",
+      "items": [
+        {
+          "productId": 4,
+          "name": "Kookaburra Helmet",
+          "type": "buy",
+          "qty": 1,
+          "price": 699
+        }
+      ]
+    },
     {
       "id": "SX-1782379668818",
       "userId": "usr_1782379491468",
@@ -445,7 +482,7 @@
       ]
     }
   ],
-  "cartIdx": 22,
+  "cartIdx": 24,
   "products": [
     {
       "id": 1,
