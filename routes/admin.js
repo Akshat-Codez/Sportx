@@ -35,4 +35,28 @@ router.get('/revenue-trend', (_req, res) => {
   res.json({ success: true, data: trend });
 });
 
+// PUT /api/admin/order-status/:id
+// Change the status of an order (e.g., 'cancelled', 'delivered', 'transit')
+router.put('/order-status/:id', (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  if (!status) return res.status(400).json({ success: false, message: 'Status required' });
+
+  const { store, saveData } = require('../store');
+  const order = store.orders.find(o => o.id === id);
+  if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+  order.status = status;
+  // If cancelled, optionally restore stock
+  if (status === 'cancelled') {
+    (order.items || []).forEach(it => {
+      const p = store.products.find(p => p.id === it.productId);
+      if (p) p.stock += it.qty;
+    });
+  }
+  
+  saveData();
+  res.json({ success: true, message: 'Order status updated', order });
+});
+
 module.exports = router;

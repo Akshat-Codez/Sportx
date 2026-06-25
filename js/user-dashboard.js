@@ -155,10 +155,15 @@ const SXUserDash = (() => {
     const hasRent = hasRental(order);
     const msLeft = msUntilDelivery(order);
 
-    // Progress steps
-    const step1done = prog > 0;
-    const step2done = prog >= 50;
-    const step3done = delivered;
+    // ── Delivery milestones ─────────────────────────────
+    // Step 1 — Confirmed    : immediately on order creation
+    // Step 2 — Out for Delivery : after 15 minutes
+    // Step 3 — Delivered    : after 60 minutes
+    const elapsedMs   = Date.now() - new Date(order.createdAt).getTime();
+    const FIFTEEN_MIN = 15 * 60 * 1000;
+    const step1done   = true;                                // always confirmed once created
+    const step2done   = delivered || elapsedMs >= FIFTEEN_MIN;
+    const step3done   = delivered;
 
     // Payment badge
     const payMethod = (order.paymentMethod || 'COD').toUpperCase();
@@ -166,10 +171,12 @@ const SXUserDash = (() => {
       ? `<span class="ord-badge ord-badge--upi">UPI</span>`
       : `<span class="ord-badge ord-badge--cod">COD</span>`;
 
-    // Status badge
+    // Status badge — reflects current milestone
     const statusBadge = delivered
-      ? `<span class="ord-badge ord-badge--delivered">DELIVERED</span>`
-      : `<span class="ord-badge ord-badge--active">IN TRANSIT</span>`;
+      ? `<span class="ord-badge ord-badge--delivered" id="sbadge-${idx}">DELIVERED</span>`
+      : step2done
+        ? `<span class="ord-badge ord-badge--transit" id="sbadge-${idx}">OUT FOR DELIVERY</span>`
+        : `<span class="ord-badge ord-badge--active" id="sbadge-${idx}">CONFIRMED</span>`;
 
     // Items list
     const itemsHtml = order.items
@@ -260,27 +267,47 @@ const SXUserDash = (() => {
 
   function startDeliveryTicker(order, idx) {
     if (_tickers['d' + idx]) clearInterval(_tickers['d' + idx]);
-    _tickers['d' + idx] = setInterval(() => {
-      const eta = document.getElementById('ord-eta-' + idx);
-      const fill = document.getElementById('prog-fill-' + idx);
-      const ms = msUntilDelivery(order);
-      const prog = deliveryProgress(order);
+    const FIFTEEN_MIN = 15 * 60 * 1000;
 
+    _tickers['d' + idx] = setInterval(() => {
+      const eta    = document.getElementById('ord-eta-' + idx);
+      const fill   = document.getElementById('prog-fill-' + idx);
+      const badge  = document.getElementById('sbadge-' + idx);
+      const card   = document.getElementById('order-card-' + idx);
+      const ms     = msUntilDelivery(order);
+      const prog   = deliveryProgress(order);
+      const elapsedMs = Date.now() - new Date(order.createdAt).getTime();
+
+      // ── Update progress bar ──
+      if (fill) fill.style.width = prog + '%';
+
+      // ── Delivered (60 min) ──
       if (ms === 0) {
         clearInterval(_tickers['d' + idx]);
-        if (eta)  { eta.className = 'ord-eta ord-eta--done'; eta.textContent = '✓ Delivered'; }
+        if (eta) { eta.className = 'ord-eta ord-eta--done'; eta.textContent = '✓ Delivered'; }
         if (fill) fill.style.width = '100%';
-
-        // Update step dots
-        const card = document.getElementById('order-card-' + idx);
         if (card) card.querySelectorAll('.ord-step, .ord-step-line').forEach(el => el.classList.add('done'));
-        const badge = card?.querySelector('.ord-badge--active');
         if (badge) { badge.className = 'ord-badge ord-badge--delivered'; badge.textContent = 'DELIVERED'; }
         return;
       }
 
-      if (eta)  eta.textContent = `⏱ Arriving in ${fmtDuration(ms)}`;
-      if (fill) fill.style.width = prog + '%';
+      // ── Out for Delivery milestone (15 min) ──
+      if (elapsedMs >= FIFTEEN_MIN) {
+        // Light up step 2 dot and line if not already
+        if (card) {
+          const steps = card.querySelectorAll('.ord-step');
+          const lines = card.querySelectorAll('.ord-step-line');
+          if (steps[1]) steps[1].classList.add('done');
+          if (lines[0]) lines[0].classList.add('done');
+        }
+        if (badge && badge.textContent !== 'OUT FOR DELIVERY') {
+          badge.className = 'ord-badge ord-badge--transit';
+          badge.textContent = 'OUT FOR DELIVERY';
+        }
+      }
+
+      // ── ETA countdown ──
+      if (eta) eta.textContent = `⏱ Arriving in ${fmtDuration(ms)}`;
     }, 1000);
   }
 

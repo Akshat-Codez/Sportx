@@ -405,6 +405,23 @@ const SXAdmin = (() => {
       }
     }
 
+    let actionsHtml = '';
+    // If order is cancelled, we shouldn't show action buttons.
+    // If order is delivered, we also might not need to show them, but let's allow "Cancel" just in case, or maybe nothing if delivered.
+    if (st !== 'cancelled' && st !== 'delivered') {
+      actionsHtml = `
+        <div style="margin-top: 24px; display: flex; gap: 10px; justify-content: flex-end;">
+          <button id="btn-cancel-${o.id}" class="sx-save-btn" style="background:rgba(255,71,87,.15); color:#ff4757; border:1px solid rgba(255,71,87,.3); width:auto; padding:8px 16px; font-size:12px; box-shadow:none;" onclick="SXData.updateOrderStatus('${o.id}', 'cancelled', 'btn-cancel-${o.id}')">Cancel Order</button>
+          
+          <button id="btn-transit-${o.id}" class="sx-save-btn" style="background:rgba(30,200,255,.15); color:#1ec8ff; border:1px solid rgba(30,200,255,.3); width:auto; padding:8px 16px; font-size:12px; box-shadow:none;" onclick="SXData.updateOrderStatus('${o.id}', 'transit', 'btn-transit-${o.id}')">Mark Out for Delivery</button>
+
+          <button id="btn-deliver-${o.id}" class="sx-save-btn" style="width:auto; padding:8px 16px; font-size:12px;" onclick="SXData.updateOrderStatus('${o.id}', 'delivered', 'btn-deliver-${o.id}')">Mark Delivered</button>
+        </div>
+      `;
+    } else if (st === 'cancelled') {
+      actionsHtml = `<div style="margin-top: 20px; text-align: right; color: #ff4757; font-weight: 600; font-size: 13px;">This order has been cancelled.</div>`;
+    }
+
     document.getElementById('order-details-content').innerHTML = `
       <div class="sx-detail-row"><span class="sx-detail-label">Order ID</span>      <span class="sx-detail-val" style="font-family:monospace;color:var(--gold)">${o.id}</span></div>
       <div class="sx-detail-row"><span class="sx-detail-label">Date</span>           <span class="sx-detail-val">${date}</span></div>
@@ -415,6 +432,7 @@ const SXAdmin = (() => {
       <div class="sx-detail-row"><span class="sx-detail-label">Status</span>         <span class="sx-detail-val">${statusBadge(o)}</span></div>
       <div class="sx-detail-row"><span class="sx-detail-label">Auto-Deliver</span>   <span class="sx-detail-val">${deliverInfo}</span></div>
       ${itemsHtml}
+      ${actionsHtml}
     `;
     openModal('order-modal');
   }

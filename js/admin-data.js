@@ -169,6 +169,30 @@ const SXData = (() => {
   }
 
   /* ────────────────────────────────────────────────────────
+     API: UPDATE ORDER STATUS
+  ──────────────────────────────────────────────────────── */
+  async function updateOrderStatus(id, status, btnId) {
+    const btn = document.getElementById(btnId);
+    await SXLoading.buttonAction(btn, async () => {
+      const res = await fetch(`/api/admin/order-status/${id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      const json = await res.json();
+      if (json.success) {
+        SXAdmin.showToast('Order status updated!');
+        // Refresh whichever view we're on
+        fetchDashboardData();
+        fetchAllOrders();
+        // Close modal if open
+        SXAdmin.closeModal('order-modal');
+      } else {
+        SXAdmin.showToast(json.message || 'Failed to update order', true);
+      }
+    }, 'gold');
+  }
+
+  /* ────────────────────────────────────────────────────────
      PUBLIC API
   ──────────────────────────────────────────────────────── */
   return {
@@ -189,6 +213,7 @@ const SXData = (() => {
     fetchInventory,
     fetchUsers,
     updateStock,
+    updateOrderStatus,
   };
 })();
 
