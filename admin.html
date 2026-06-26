@@ -216,7 +216,8 @@
   <a class="nav-item active" id="nav-dash"      onclick="SXAdmin.switchTab('dash')">      <i>📊</i> Overview</a>
   <a class="nav-item"        id="nav-orders"    onclick="SXAdmin.switchTab('orders')">    <i>📦</i> Orders</a>
   <a class="nav-item"        id="nav-inventory" onclick="SXAdmin.switchTab('inventory')"> <i>🏸</i> Inventory</a>
-  <a class="nav-item"        id="nav-users"  style="margin-top:auto" onclick="SXAdmin.switchTab('users')"><i>👤</i> Users</a>
+  <a class="nav-item"        id="nav-users"  onclick="SXAdmin.switchTab('users')"><i>👤</i> Users</a>
+  <a class="sidebar-logout"  onclick="adminLogout()"><i>🚪</i> Logout</a>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -241,9 +242,12 @@
     <!-- ── Metrics Grid ── -->
     <div class="stats-grid">
       <div class="stat-card gold">
-        <div class="stat-icon">₹</div>
+        <div class="stat-card-header">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-icon">₹</div>
+        </div>
         <div class="stat-value" id="s-rev">0</div>
-        <div class="stat-label">Total Revenue</div>
+        <div class="stat-trend up" id="t-rev">↑ 12% vs last week</div>
         <div class="revenue-breakdown">
           <div class="rev-split">
             <span class="rev-split-label">Actual Revenue</span>
@@ -255,63 +259,88 @@
           </div>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon">📦</div>
+      <div class="stat-card blue">
+        <div class="stat-card-header">
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-icon">📦</div>
+        </div>
         <div class="stat-value" id="s-ord">0</div>
-        <div class="stat-label">Total Orders</div>
+        <div class="stat-trend up" id="t-ord">↑ 8% vs last week</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon">🏸</div>
+      <div class="stat-card purple">
+        <div class="stat-card-header">
+          <div class="stat-label">Total Products</div>
+          <div class="stat-icon">🏸</div>
+        </div>
         <div class="stat-value" id="s-prod">0</div>
-        <div class="stat-label">Total Products</div>
+        <div class="stat-trend up" id="t-prod">↑ 2 new this month</div>
       </div>
       <div class="stat-card" style="border-color:rgba(255,71,87,0.2)">
-        <div class="stat-icon" style="color:var(--danger)">⚠️</div>
+        <div class="stat-card-header">
+          <div class="stat-label">Low Stock Alerts</div>
+          <div class="stat-icon" style="color:var(--danger); background:rgba(255,71,87,0.15)">⚠️</div>
+        </div>
         <div class="stat-value" id="s-low">0</div>
-        <div class="stat-label">Low Stock Alerts</div>
+        <div class="stat-trend down" id="t-low">Action required</div>
       </div>
     </div>
 
-    <!-- ── Revenue Trend Chart ── -->
-    <div class="chart-section">
-      <div class="section-title">REVENUE TREND</div>
-      <div class="chart-container">
-        <div class="chart-header">
-          <h3>📈 7-Day Revenue</h3>
-          <span class="chart-badge" id="chart-total-badge">Loading…</span>
+    <!-- ── Middle Row: Chart & Low Stock ── -->
+    <div class="grid-2-1">
+      <!-- Revenue Trend Chart -->
+      <div class="chart-section">
+        <div class="section-title">REVENUE TREND</div>
+        <div class="chart-container">
+          <div class="chart-header">
+            <h3>📈 7-Day Revenue</h3>
+            <span class="chart-badge" id="chart-total-badge">Loading…</span>
+          </div>
+          <div style="position:relative;height:280px;">
+            <canvas id="revenue-chart"></canvas>
+          </div>
         </div>
-        <div style="position:relative;height:280px;">
-          <canvas id="revenue-chart"></canvas>
+      </div>
+
+      <!-- Low Stock Alerts -->
+      <div class="low-stock-section">
+        <div class="section-title">LOW STOCK ALERTS</div>
+        <div class="low-stock-grid" id="low-stock-grid">
+          <p style="color:var(--text-muted);font-size:14px;padding:12px;">Loading alerts…</p>
         </div>
       </div>
     </div>
 
-    <!-- ── Low Stock Alerts ── -->
-    <div class="low-stock-section">
-      <div class="section-title">LOW STOCK ALERTS</div>
-      <div class="low-stock-grid" id="low-stock-grid">
-        <p style="color:var(--text-muted);font-size:14px;padding:12px;">Loading alerts…</p>
+    <!-- ── Bottom Row: Transactions & Sales Channel ── -->
+    <div class="grid-2-1">
+      <!-- Recent Orders Table -->
+      <div>
+        <div class="section-title">RECENT ORDERS</div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Auto-Deliver</th>
+              </tr>
+            </thead>
+            <tbody id="dash-orders">
+              <tr><td colspan="6" class="empty-state">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
 
-    <!-- ── Recent Orders Table ── -->
-    <div class="section-title">RECENT ORDERS</div>
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Date</th>
-            <th>Total</th>
-            <th>Payment</th>
-            <th>Status</th>
-            <th>Auto-Deliver</th>
-          </tr>
-        </thead>
-        <tbody id="dash-orders">
-          <tr><td colspan="6" class="empty-state">Loading…</td></tr>
-        </tbody>
-      </table>
+      <!-- Order Status Donut Chart -->
+      <div>
+        <div class="section-title">ORDER STATUS</div>
+        <div class="donut-container">
+          <canvas id="status-chart"></canvas>
+        </div>
+      </div>
     </div>
   </div>
 

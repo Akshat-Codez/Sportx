@@ -232,6 +232,71 @@ const SXAdmin = (() => {
   }
 
   /* ────────────────────────────────────────────────────────
+     RENDER: ORDER STATUS DONUT CHART
+     Receives full orders list and calculates status distribution.
+  ──────────────────────────────────────────────────────── */
+  let _statusChartInstance = null;
+
+  function renderOrderStatusChart(orders) {
+    const ctx = document.getElementById('status-chart');
+    if (!ctx) return;
+
+    let pending = 0, confirmed = 0, delivered = 0, cancelled = 0;
+    orders.forEach(o => {
+      if (o.status === 'pending') pending++;
+      else if (o.status === 'confirmed') confirmed++;
+      else if (o.status === 'delivered') delivered++;
+      else if (o.status === 'cancelled') cancelled++;
+    });
+
+    if (_statusChartInstance) {
+      _statusChartInstance.destroy();
+    }
+
+    _statusChartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Pending', 'Confirmed', 'Delivered', 'Cancelled'],
+        datasets: [{
+          data: [pending, confirmed, delivered, cancelled],
+          backgroundColor: [
+            '#F5A623', // Gold
+            '#2ed573', // Green
+            '#3742fa', // Blue
+            '#ff4757'  // Red
+          ],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#fff',
+              font: { family: 'Inter', size: 12 },
+              padding: 20,
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0,0,0,0.85)',
+            bodyColor: '#fff',
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: false,
+          }
+        }
+      }
+    });
+  }
+
+  /* ────────────────────────────────────────────────────────
      RENDER: LOW STOCK ALERTS
      Products with stock < 6 shown as cards.
      Stock < 5 = critical (red highlight + pulse animation).
@@ -526,6 +591,7 @@ const SXAdmin = (() => {
     renderDashOrders,
     renderAllOrders,
     renderRevenueChart,
+    renderOrderStatusChart,
     renderLowStockAlerts,
     renderInventory,
     renderUsers,

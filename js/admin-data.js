@@ -90,6 +90,7 @@ const SXData = (() => {
       if (ordJson.success && ordJson.data.length > 0) {
         allOrders = ordJson.data;
         SXLoading.reveal(tbody, () => SXAdmin.renderDashOrders(ordJson.data.slice(0, 8)));
+        SXAdmin.renderOrderStatusChart(ordJson.data);
       } else {
         tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No recent orders.</td></tr>';
       }
