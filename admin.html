@@ -458,7 +458,7 @@ async function handleAdminLogin(e) {
     if (json.success) {
       localStorage.setItem('sportx_admin_token', json.token);
       document.getElementById('admin-login-overlay').style.display = 'none';
-      document.getElementById('dashboard-wrapper').style.display = 'block';
+      document.getElementById('dashboard-wrapper').style.display = 'flex';
       initDashboard();
     } else {
       errEl.textContent = json.message || 'Invalid credentials';
@@ -505,7 +505,7 @@ function initDashboard() {
       .then(r => {
         if (r.ok) {
           document.getElementById('admin-login-overlay').style.display = 'none';
-          document.getElementById('dashboard-wrapper').style.display = 'block';
+          document.getElementById('dashboard-wrapper').style.display = 'flex';
           initDashboard();
         } else {
           localStorage.removeItem('sportx_admin_token');
