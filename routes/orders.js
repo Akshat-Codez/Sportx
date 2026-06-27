@@ -25,7 +25,7 @@ router.post('/', requireAuth, async (req, res) => {
 
       const linePrice = c.type === 'buy' ? p.price : p.rent * c.days;
       total += linePrice * c.qty;
-      items.push({ productId: p.id, name: p.name, type: c.type, qty: c.qty, price: linePrice });
+      items.push({ productId: p.id, name: p.name, type: c.type, qty: c.qty, price: linePrice, days: c.days });
 
       if (c.type === 'rent') hasRental = true;
 
