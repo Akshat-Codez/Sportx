@@ -1114,8 +1114,7 @@ async function apiFetch(url, options = {}) {
   if (token) options.headers['Authorization'] = `Bearer ${token}`;
   const res = await window.fetch(url, options);
   if (res.status === 401) {
-    showToast('Please log in to continue.', 'error');
-    openAuthModal();
+    window.location.href = '/login';
     return null;
   }
   return res;
@@ -1260,6 +1259,8 @@ async function _doAddToCart(productId, type, days) {
 }
 
 async function updateCartCount() {
+  const token = localStorage.getItem('sportx_token');
+  if (!token) return;
   try {
     const res = await apiFetch('/api/cart');
     if (!res) return;
@@ -1496,7 +1497,7 @@ function closeAllModals() {
 function beginCheckout() {
   toggleCart(); // Close the cart drawer
   if (!currentUser) {
-    document.getElementById('auth-modal').classList.add('active');
+    window.location.href = '/login';
   } else {
     openAddressModal();
   }
