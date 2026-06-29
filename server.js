@@ -88,6 +88,12 @@ Object.entries(PAGES).forEach(([route, file]) => {
   );
 });
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('[Global Error]', err.stack);
+  res.status(500).json({ success: false, message: 'Internal Server Error', error: process.env.NODE_ENV === 'development' ? err.message : undefined });
+});
+
 // 404 Handler
 app.use((req, res) => {
   if (process.env.VERCEL || process.env.NODE_ENV === 'production') {

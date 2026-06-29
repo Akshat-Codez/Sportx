@@ -504,7 +504,7 @@
 <nav>
   <div>
     <div class="logo">
-      <img src="/logo.jpg" alt="SPORTX" style="height: 40px; display: block; filter: brightness(1.2);">
+      <img src="/logo.jpg" alt="SPORTX" loading="lazy" style="height: 40px; display: block; filter: brightness(1.2);">
     </div>
     <div class="logo-sub">PRO GRADE · RENT · OWN · ELITE SERVICE</div>
   </div>
@@ -541,7 +541,7 @@
 
 <div class="search-section">
   <div class="search-bar">
-    <span style="color:var(--text2);font-size:18px" aria-hidden="true">🔍</span>
+    <span style="color:var(--text2);font-size:18px" aria-hidden="true"></span>
     <input type="text" id="search-input" aria-label="Search equipment" placeholder="What's your game? Search equipment…"/>
   </div>
   <div class="filter-chips" id="chips">
@@ -555,7 +555,7 @@
 </div>
 
 <!-- Floating Cart Button -->
-<button class="floating-cart" id="floating-cart" onclick="toggleCart()">
+<button class="floating-cart" id="floating-cart" onclick="toggleCart()" aria-label="Open Floating Cart">
   🛒 View Cart <span class="cart-badge" id="float-cart-count">0</span>
 </button>
 
@@ -564,7 +564,7 @@
 <div class="cart-drawer" id="cart-drawer">
   <div class="cart-header">
     <h2>YOUR <span>CART</span></h2>
-    <button class="btn-close" onclick="toggleCart()">&times;</button>
+    <button class="btn-close" onclick="toggleCart()" aria-label="Close Cart">&times;</button>
   </div>
   <div class="cart-items" id="cart-items">
     <!-- Populated via JS -->
@@ -609,7 +609,7 @@
 <!-- NEW MODALS for Checkout Flow -->
 <div class="modal-overlay" id="auth-modal">
   <div class="checkout-modal">
-    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()">&times;</button>
+    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()" aria-label="Close Auth Modal">&times;</button>
     <h3>LOGIN / SIGNUP</h3>
     <p>Please log in to continue your checkout.</p>
     <div class="form-group">
@@ -626,7 +626,7 @@
 
 <div class="modal-overlay" id="otp-modal">
   <div class="checkout-modal">
-    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()">&times;</button>
+    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()" aria-label="Close OTP Modal">&times;</button>
     <h3>VERIFY OTP</h3>
     <p>We've sent a 4-digit code to your phone.</p>
     <div class="form-group">
@@ -640,7 +640,7 @@
 
 <div class="modal-overlay" id="profile-modal">
   <div class="checkout-modal" style="text-align:left;">
-    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#ff4757;font-weight:bold;font-size:32px;" onclick="closeAllModals()">&times;</button>
+    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#ff4757;font-weight:bold;font-size:32px;" onclick="closeAllModals()" aria-label="Close Profile Modal">&times;</button>
     <h3 style="text-align:center;">YOUR PROFILE</h3>
     <div style="margin-top:15px;">
       <p style="color:#ccc; margin-bottom:5px;"><b>Name:</b> <span id="prof-name" style="color:#fff"></span></p>
@@ -656,7 +656,7 @@
 
 <div class="modal-overlay" id="address-modal">
   <div class="checkout-modal" style="max-width:520px;">
-    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()">&times;</button>
+    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()" aria-label="Close Address Modal">&times;</button>
     <h3>DELIVERY DETAILS</h3>
     <p id="addr-modal-subtext">Where should we send your elite gear?</p>
 
@@ -700,7 +700,7 @@
 
 <div class="modal-overlay" id="payment-modal">
   <div class="checkout-modal">
-    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()">&times;</button>
+    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()" aria-label="Close Payment Details Modal">&times;</button>
     <h3>PAYMENT</h3>
     <p>Select your preferred payment method.</p>
     <div class="pay-option" onclick="selectPayment('UPI')">
@@ -722,7 +722,7 @@
 
 <div class="modal-overlay" id="upi-modal">
   <div class="checkout-modal">
-    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()">&times;</button>
+    <button class="btn-close" style="position:absolute;top:15px;right:20px;color:#888;" onclick="closeAllModals()" aria-label="Close UPI Modal">&times;</button>
     <h3 style="text-align:center;">UPI PAYMENT</h3>
     
     <div id="upi-step-1">
@@ -775,7 +775,7 @@
   </button>
   <!-- Hero -->
   <div id="sx-panel-hero">
-    <img id="sx-panel-hero-img" src="" alt="" />
+    <img id="sx-panel-hero-img" src="" alt="" loading="lazy" />
     <span id="sx-panel-tag"></span>
     <div id="sx-panel-icon"></div>
   </div>
@@ -1000,7 +1000,7 @@ function openProductPanel(product, hideImage = false) {
     heroImg.src = imgSrc;
     heroImg.alt = product.name;
     iconEl.style.display = 'block';
-    iconEl.innerHTML = `<img src="${imgSrc}" alt="${product.name}" />`;
+    iconEl.innerHTML = `<img src="${imgSrc}" alt="${product.name}" loading="lazy" />`;
   }
 
   document.getElementById('sx-panel-tag').innerText = product.tag;
@@ -1178,7 +1178,7 @@ function renderCards(list) {
         <span class="card-tag">${p.tag}</span>
         ${isOos ? '<span class="card-tag card-tag-oos">SOLD OUT</span>' : ''}
         ${isLow ? `<span class="card-tag card-tag-low">ONLY ${p.stock} LEFT</span>` : ''}
-        <img src="${getProductImage(p)}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover;" />
+        <img src="${getProductImage(p)}" alt="${p.name}" loading="lazy" style="width:100%; height:100%; object-fit:cover;" />
       </div>
       <div class="card-body">
         <div class="card-name">${p.name}</div>
@@ -1360,7 +1360,7 @@ async function loadCart() {
           div.className = 'cart-item';
           const priceStr = item.type === 'buy' ? `₹${item.product.price.toLocaleString()} x ${item.qty}` : `₹${item.product.rent.toLocaleString()}/day x ${item.days}d`;
           div.innerHTML = `
-            <div class="c-icon">${item.product.icon.startsWith('http') ? `<img src="${item.product.icon}" style="width:30px; height:30px; object-fit:cover; border-radius:50%; background-color:#fff;" />` : item.product.icon}</div>
+            <div class="c-icon">${item.product.icon.startsWith('http') ? `<img src="${item.product.icon}" loading="lazy" style="width:30px; height:30px; object-fit:cover; border-radius:50%; background-color:#fff;" />` : item.product.icon}</div>
             <div class="c-details">
               <div class="c-name">${item.product.name}</div>
               <span class="c-type">${item.type.toUpperCase()}</span>
